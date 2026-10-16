@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Cinema UNIFOR — Universidade de Fortaleza (Bibicini)</title>
+  
+  <!-- Favicon e Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Folha de estilo oficial Cinema UNIFOR -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       BARRA DE HOMOLOGAÇÃO DE TELAS (Fase 4 do Projeto - Protótipo 1 a 36)
+       ========================================================================== -->
+  <div class="proto-bar">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span class="proto-badge">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Cinema UNIFOR
+      </span>
+      <span style="font-weight: 600; color: #cbd5e1;">Navegador do Protótipo (36 Telas):</span>
+      <select id="proto-screen-select" class="proto-select">
+        <optgroup label="Área do Usuário (20 Telas)">
+          <option value="screen-home">1. Página Inicial (RF001)</option>
+          <option value="screen-catalog">2. Filmes em Cartaz (RF002, RF003)</option>
+          <option value="screen-upcoming">3. Em Breve / Lançamentos (RF001)</option>
+          <option value="screen-movie-details">4. Detalhes do Filme & Trailer (RF004)</option>
+          <option value="screen-schedule">5. Programação por Data (RF005)</option>
+          <option value="screen-session-select">6. Seleção de Sessão (RF006, RF007)</option>
+          <option value="screen-seat-selection">7. Seleção de Assentos & Timer (RF008-010)</option>
+          <option value="screen-checkout-summary">8. Resumo da Compra & Meia UNIFOR (RF011, RF012)</option>
+          <option value="screen-login">9. Login de Usuário (RF014)</option>
+          <option value="screen-register">10. Cadastro com Vínculo UNIFOR (RF013, LGPD)</option>
+          <option value="screen-forgot-password">11. Recuperação de Senha (RF015)</option>
+          <option value="screen-payment">12. Pagamento PIX / Cartão (RF018)</option>
+          <option value="screen-confirmation">13. Confirmação da Compra (RF019, RF020)</option>
+          <option value="screen-my-tickets">14. Meus Ingressos & QR Code (RF024)</option>
+          <option value="screen-order-history">15. Histórico & Cancelamento (RF023, RF025)</option>
+          <option value="screen-profile">16. Perfil & Vínculo Acadêmico (RF013, RF016)</option>
+          <option value="screen-contact">17. Contato / Campus Edson Queiroz</option>
+          <option value="screen-faq">18. Perguntas Frequentes (FAQ)</option>
+          <option value="screen-privacy">19. Política de Privacidade (LGPD)</option>
+          <option value="screen-terms">20. Termos de Uso</option>
+        </optgroup>
+        <optgroup label="Área Administrativa (16 Telas)">
+          <option value="screen-admin-login">21. Login Administrativo (RNF007)</option>
+          <option value="screen-admin-dashboard">22. Dashboard de Gestão (RF037)</option>
+          <option value="screen-admin-movies">23. Filmes & Importação TMDb (RF026, RF027)</option>
+          <option value="screen-admin-sessions">24. Sessões & Anti-Conflito (RF030, RF031)</option>
+          <option value="screen-admin-rooms">25. Gerenciamento de Salas (RF028)</option>
+          <option value="screen-admin-seats">26. Mapa de Assentos da Sala (RF029)</option>
+          <option value="screen-admin-prices">27. Tabela de Preços (RF032)</option>
+          <option value="screen-admin-promotions">28. Promoções e Cupons (RF032)</option>
+          <option value="screen-admin-orders">29. Pedidos & Cancelamento Admin (RF033, RF034)</option>
+          <option value="screen-admin-payments">30. Transações e Pagamentos (RF019)</option>
+          <option value="screen-admin-users">31. Gestão de Usuários (RF039)</option>
+          <option value="screen-admin-reports">32. Relatórios de Ocupação & Vendas (RF035, RF036)</option>
+          <option value="screen-admin-banners">33. Banners e Destaques (RF038)</option>
+          <option value="screen-admin-config">34. Configurações & TMDb API</option>
+          <option value="screen-admin-audit">35. Auditoria e Logs (RF040)</option>
+          <option value="screen-admin-validator">36. Validador da Portaria / QR Code (RF021)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <!-- Alternador rápido de perfis de teste e atalhos -->
+    <div class="proto-quick-actions">
+      <span style="color: #93c5fd; font-size: 0.78rem">Perfil ativo:</span>
+      <select id="header-role-switch" class="proto-select" style="max-width: 170px; padding: 4px 8px; font-size: 0.78rem">
+        <option value="aluno">Aluno UNIFOR</option>
+        <option value="professor">Docente UNIFOR</option>
+        <option value="visitante">Visitante Geral</option>
+        <option value="admin">Administrador</option>
+        <option value="fiscal">Fiscal de Portaria</option>
+      </select>
+      <button id="proto-user-flow-btn" class="proto-btn">👤 Área Cliente</button>
+      <button id="proto-admin-flow-btn" class="proto-btn" style="background: var(--unifor-blue)">⚙ Painel Admin</button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       CABEÇALHO INSTITUCIONAL UNIFOR
+       ========================================================================== -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="brand" onclick="CinemaApp.navigateTo('screen-home')" style="cursor: pointer;">
+        <div class="brand-logo-icon">U</div>
+        <div class="brand-text">
+          <h1>Cinema <span>UNIFOR</span></h1>
+          <p>Universidade de Fortaleza</p>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <span class="nav-link active" data-screen="screen-home">Início</span>
+        <span class="nav-link" data-screen="screen-catalog">Filmes</span>
+        <span class="nav-link" data-screen="screen-upcoming">Em Breve</span>
+        <span class="nav-link" data-screen="screen-schedule">Programação</span>
+        <span class="nav-link" data-screen="screen-my-tickets">Meus Ingressos</span>
+        <span class="nav-link" data-screen="screen-admin-validator" style="color: #93c5fd">Validador Portaria</span>
+        <span class="nav-link" data-screen="screen-admin-dashboard" style="color: #60a5fa">Admin</span>
+      </nav>
+
+      <div class="header-actions">
+        <div id="header-user-btn" class="user-badge-header">
+          <!-- Renderizado via app.js -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       CONTEÚDO PRINCIPAL (36 TELAS)
+       ========================================================================== -->
+  <main class="main-content">
+
+    <!-- 1. PÁGINA INICIAL (RF001) -->
+    <section id="screen-home" class="screen-container active">
+      <div id="home-hero-banner" class="hero-banner">
+        <!-- Banner Hero Dinâmico -->
+      </div>
+
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Em Cartaz no Cinema UNIFOR</h2>
+          <p class="section-subtitle">Exibições com tecnologia de ponta no Campus Edson Queiroz</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="CinemaApp.navigateTo('screen-catalog')">Ver Catálogo Completo →</button>
+      </div>
+      <div id="home-now-playing-grid" class="movies-grid" style="margin-bottom: 40px">
+        <!-- Renderizado dinamicamente -->
+      </div>
+
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Em Breve nos Cinemas</h2>
+          <p class="section-subtitle">Próximos lançamentos mundiais e mostras culturais programadas</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="CinemaApp.navigateTo('screen-upcoming')">Ver Lançamentos →</button>
+      </div>
+      <div id="home-upcoming-grid" class="movies-grid">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 2. FILMES EM CARTAZ & BUSCA (RF002, RF003) -->
+    <section id="screen-catalog" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Filmes em Cartaz</h2>
+          <p class="section-subtitle">Consulte sinopses, classificação e reserve seus assentos antecipados</p>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-input" placeholder="Pesquisar por título, diretor ou sinopse..." oninput="CinemaApp.filterCatalogSearch(this.value)" />
+        </div>
+        <div>
+          <select class="filter-select" onchange="CinemaApp.filterCatalogGenre(this.value)">
+            <option value="todos">Todos os Gêneros</option>
+            <option value="Ação">Ação / Aventura</option>
+            <option value="Drama">Drama / História</option>
+            <option value="Ficção Científica">Ficção Científica</option>
+            <option value="Animação">Animação</option>
+            <option value="Comédia">Comédia</option>
+            <option value="Suspense">Suspense / Terror</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="catalog-grid" class="movies-grid">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 3. EM BREVE (RF001) -->
+    <section id="screen-upcoming" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Próximas Estreias</h2>
+          <p class="section-subtitle">Ative os avisos institucionais para ser notificado assim que abrir a pré-venda</p>
+        </div>
+      </div>
+      <div id="upcoming-grid" class="movies-grid">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 4. DETALHES DO FILME (RF004) -->
+    <section id="screen-movie-details" class="screen-container">
+      <button class="btn btn-secondary btn-sm" style="margin-bottom: 20px" onclick="CinemaApp.navigateTo('screen-catalog')">← Voltar para Filmes</button>
+      <div id="movie-details-content">
+        <!-- Renderizado dinamicamente com trailer YouTube e sessões -->
+      </div>
+    </section>
+
+    <!-- 5. PROGRAMAÇÃO POR DATA (RF005) -->
+    <section id="screen-schedule" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Programação Semanal</h2>
+          <p class="section-subtitle">Escolha o melhor dia e horário nas salas de cinema do Campus UNIFOR</p>
+        </div>
+      </div>
+
+      <div id="schedule-days-nav" class="days-nav">
+        <!-- Dias da semana renderizados dinamicamente -->
+      </div>
+
+      <div id="schedule-movies-list">
+        <!-- Sessões agrupadas por filme -->
+      </div>
+    </section>
+
+    <!-- 6. SELEÇÃO DE SESSÃO (RF006, RF007) -->
+    <section id="screen-session-select" class="screen-container">
+      <button class="btn btn-secondary btn-sm" style="margin-bottom: 20px" onclick="CinemaApp.navigateTo('screen-home')">← Voltar</button>
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Escolha o Horário e Sala</h2>
+          <p class="section-subtitle">Filme: <b id="session-select-movie-title" style="color: var(--white)"></b></p>
+        </div>
+      </div>
+
+      <div id="session-select-list" style="max-width: 800px; margin: 0 auto">
+        <!-- Sessões disponíveis -->
+      </div>
+    </section>
+
+    <!-- 7. SELEÇÃO DE ASSENTOS COM TELA & TIMER (RF008 a RF010) -->
+    <section id="screen-seat-selection" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Mapa de Assentos</h2>
+          <p id="seat-screen-movie" style="font-size: 1.1rem; font-weight: 800; color: #93c5fd"></p>
+          <p id="seat-screen-info" class="section-subtitle"></p>
+        </div>
+      </div>
+
+      <div class="seat-booking-layout">
+        <div class="cinema-room-wrap">
+          <!-- Trava Temporária de 10 minutos (RN002, RN003) -->
+          <div class="timer-box">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Tempo de Reserva Temporária:</span>
+            <span id="seat-countdown-timer" class="timer-count">10:00</span>
+          </div>
+
+          <!-- Indicador de Tela -->
+          <div class="screen-indicator"></div>
+          <div class="screen-text">TELA DO CINEMA UNIFOR</div>
+
+          <!-- Grade de Assentos -->
+          <div id="cinema-seats-grid" class="seats-grid">
+            <!-- Renderizado dinamicamente -->
+          </div>
+
+          <!-- Legenda -->
+          <div class="seats-legend">
+            <div class="legend-item">
+              <div class="legend-sample" style="background: #0d2870; border: 1px solid #3b82f6;"></div>
+              <span>Disponível</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-sample" style="background: var(--unifor-blue); border: 2px solid #fff;"></div>
+              <span>Sua Seleção</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-sample" style="background: #1e293b; border: 1px solid #334155;"></div>
+              <span>Ocupado</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-sample" style="background: #0d2870; border: 1px solid #06b6d4;"></div>
+              <span>Acessível PCD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar de Resumo da Seleção -->
+        <div class="booking-summary-sidebar">
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; border-bottom: 1px solid var(--unifor-border); padding-bottom: 10px;">Resumo dos Lugares</h3>
+          <div style="margin-bottom: 14px">
+            <small style="color: var(--gray-400)">Assentos selecionados (<span id="selected-seats-count">0</span>):</small>
+            <div id="selected-seats-list" style="font-size: 1.1rem; font-weight: 800; color: #93c5fd; margin-top: 4px;">Nenhum</div>
+          </div>
+          <div style="margin-bottom: 24px">
+            <small style="color: var(--gray-400)">Valor estimado:</small>
+            <div id="selected-seats-total" style="font-size: 1.6rem; font-weight: 900; color: var(--white);">R$ 0,00</div>
+            <small style="color: #34d399">✓ Desconto Meia Aluno UNIFOR disponível na próxima etapa</small>
+          </div>
+          <button id="btn-continue-to-summary" class="btn btn-primary btn-lg" style="width: 100%" onclick="CinemaApp.proceedToCheckoutSummary()" disabled>
+            Avançar para Ingressos →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. RESUMO DA COMPRA & TIPO DE INGRESSO (RF011, RF012, RF017) -->
+    <section id="screen-checkout-summary" class="screen-container">
+      <div class="checkout-steps">
+        <div class="step-item completed">
+          <div class="step-num">✓</div>
+          <span class="step-title">Assentos</span>
+        </div>
+        <div class="step-item active">
+          <div class="step-num">2</div>
+          <span class="step-title">Ingressos</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <span class="step-title">Pagamento</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <span class="step-title">Bilhete Digital</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 360px; gap: 30px;">
+        <div>
+          <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px;">
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 6px" id="summary-movie-title">Filme</h3>
+            <p style="color: #93c5fd; font-size: 0.95rem; margin-bottom: 16px" id="summary-session-info"></p>
+            <p style="color: var(--gray-300); font-size: 0.85rem">Local: <b id="summary-room-name">Sala</b></p>
+          </div>
+
+          <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 16px;">Selecione o Tipo de Ingresso por Assento:</h3>
+            <div id="summary-ticket-items">
+              <!-- Itens com seletores -->
+            </div>
+          </div>
+
+          <div id="summary-user-box">
+            <!-- Box de identificação do usuário / vínculo UNIFOR -->
+          </div>
+        </div>
+
+        <div>
+          <div class="booking-summary-sidebar">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 18px">Resumo Financeiro</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Possui Cupom Promocional?</label>
+              <div style="display: flex; gap: 8px">
+                <input type="text" id="coupon-code-input" class="form-control" placeholder="Ex: UNIFOR10" style="text-transform: uppercase" />
+                <button class="btn btn-secondary btn-sm" onclick="CinemaApp.applyCoupon()">Aplicar</button>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem">
+              <span style="color: var(--gray-400)">Subtotal:</span>
+              <span id="summary-subtotal">R$ 0,00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem">
+              <span style="color: var(--gray-400)">Descontos Aplicados:</span>
+              <span id="summary-discount" style="color: #34d399">R$ 0,00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.9rem">
+              <span style="color: var(--gray-400)">Taxa de Serviço:</span>
+              <span style="color: #34d399">Grátis (UNIFOR)</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--unifor-border); padding-top: 14px; margin-bottom: 24px;">
+              <span style="font-size: 1.1rem; font-weight: 700">Total a Pagar:</span>
+              <span id="summary-total" style="font-size: 1.7rem; font-weight: 900; color: #fff">R$ 0,00</span>
+            </div>
+
+            <button class="btn btn-primary btn-lg" style="width: 100%" onclick="CinemaApp.proceedToPayment()">
+              Ir para o Pagamento →
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. LOGIN (RF014) -->
+    <section id="screen-login" class="screen-container">
+      <div style="max-width: 440px; margin: 40px auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-lg);">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div class="brand-logo-icon" style="margin: 0 auto 12px">U</div>
+          <h2 style="font-size: 1.5rem; font-weight: 800">Acesse sua Conta</h2>
+          <p style="color: var(--gray-300); font-size: 0.85rem">Portal Integrado do Cinema UNIFOR</p>
+        </div>
+
+        <!-- Atalhos rápidos para avaliação -->
+        <div style="background: rgba(4, 76, 244, 0.15); border: 1px solid var(--unifor-blue); padding: 10px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.78rem;">
+          <b style="color: #93c5fd">Acesso Rápido de Demonstração:</b>
+          <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+            <button type="button" class="proto-btn" onclick="CinemaApp.quickLogin('aluno')">Aluno UNIFOR</button>
+            <button type="button" class="proto-btn" onclick="CinemaApp.quickLogin('visitante')">Visitante</button>
+            <button type="button" class="proto-btn" onclick="CinemaApp.quickLogin('admin')">Admin</button>
+          </div>
+        </div>
+
+        <form onsubmit="CinemaApp.handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">E-mail Institucional ou Pessoal</label>
+            <input type="email" id="login-email" class="form-control" placeholder="nome@unifor.br" value="aluno@unifor.br" required />
+          </div>
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px">
+              <label class="form-label" style="margin-bottom: 0">Senha</label>
+              <a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-forgot-password')" style="font-size: 0.75rem; color: #93c5fd">Esqueci a senha</a>
+            </div>
+            <input type="password" id="login-password" class="form-control" value="unifor" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px">Entrar</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--gray-300)">
+          Ainda não possui cadastro? <a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-register')" style="color: #60a5fa; font-weight: 700">Criar Conta UNIFOR</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. CADASTRO DE USUÁRIO COM LGPD (RF013, RNF009) -->
+    <section id="screen-register" class="screen-container">
+      <div style="max-width: 600px; margin: 30px auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 6px">Cadastro de Usuário</h2>
+        <p style="color: var(--gray-300); font-size: 0.85rem; margin-bottom: 24px">Informe seus dados para concessão de benefícios da comunidade UNIFOR</p>
+
+        <form onsubmit="CinemaApp.handleRegisterSubmit(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+            <div class="form-group" style="grid-column: 1/-1">
+              <label class="form-label">Nome Completo</label>
+              <input type="text" id="reg-name" class="form-control" placeholder="Seu nome completo" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">CPF</label>
+              <input type="text" id="reg-cpf" class="form-control" placeholder="000.000.000-00" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Data de Nascimento</label>
+              <input type="date" id="reg-birth" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone / Celular</label>
+              <input type="tel" id="reg-phone" class="form-control" placeholder="(85) 99999-9999" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vínculo Institucional</label>
+              <select id="reg-role" class="form-control" required>
+                <option value="aluno">Aluno Regular UNIFOR</option>
+                <option value="professor">Professor / Docente UNIFOR</option>
+                <option value="colaborador">Colaborador / Funcionário</option>
+                <option value="visitante">Visitante / Comunidade Geral</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column: 1/-1">
+              <label class="form-label">Matrícula Institucional (Alunos e Colaboradores UNIFOR)</label>
+              <input type="text" id="reg-matricula" class="form-control" placeholder="Ex: 2410889" />
+              <small style="color: #93c5fd; font-size: 0.72rem">Necessário para concessão de meia-entrada institucional de 50%</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input type="email" id="reg-email" class="form-control" placeholder="seuemail@unifor.br" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Senha</label>
+              <input type="password" id="reg-password" class="form-control" placeholder="Mínimo 6 dígitos" required />
+            </div>
+          </div>
+
+          <div style="margin: 18px 0; padding: 12px; background: rgba(0,0,0,0.25); border-radius: var(--radius-sm)">
+            <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.8rem; color: var(--gray-300); cursor: pointer">
+              <input type="checkbox" id="reg-lgpd" style="margin-top: 3px" required />
+              <span>Li e concordo com os <b>Termos de Uso</b> e autorizo o tratamento de dados pessoais conforme a <b>Lei Geral de Proteção de Dados (LGPD)</b> para fins de emissão de bilhetes do Cinema UNIFOR.</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px">Concluir Cadastro</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 11. RECUPERAÇÃO DE SENHA (RF015) -->
+    <section id="screen-forgot-password" class="screen-container">
+      <div style="max-width: 440px; margin: 50px auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px">Recuperar Senha</h2>
+        <p style="color: var(--gray-300); font-size: 0.85rem; margin-bottom: 24px">Digite o e-mail cadastrado para receber o link seguro de redefinição.</p>
+        <form onsubmit="CinemaApp.handleForgotPasswordSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">E-mail Cadastrado</label>
+            <input type="email" id="forgot-email" class="form-control" placeholder="seuemail@unifor.br" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px">Enviar Instruções</button>
+          <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 10px" onclick="CinemaApp.navigateTo('screen-login')">Voltar ao Login</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 12. PAGAMENTO PIX & CARTÃO (RF018) -->
+    <section id="screen-payment" class="screen-container">
+      <div class="checkout-steps">
+        <div class="step-item completed">
+          <div class="step-num">✓</div>
+          <span class="step-title">Assentos</span>
+        </div>
+        <div class="step-item completed">
+          <div class="step-num">✓</div>
+          <span class="step-title">Ingressos</span>
+        </div>
+        <div class="step-item active">
+          <div class="step-num">3</div>
+          <span class="step-title">Pagamento</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <span class="step-title">Bilhete Digital</span>
+        </div>
+      </div>
+
+      <div style="max-width: 700px; margin: 0 auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; border-bottom: 1px solid var(--unifor-border); padding-bottom: 14px;">
+          <div>
+            <h2 style="font-size: 1.5rem; font-weight: 800">Pagamento Seguro</h2>
+            <p style="color: var(--gray-400); font-size: 0.85rem">Protocolo seguro com conformidade LGPD e PCI-DSS (RNF010)</p>
+          </div>
+          <div style="text-align: right">
+            <small style="color: var(--gray-400)">Valor a pagar</small>
+            <div id="payment-amount-display" style="font-size: 1.6rem; font-weight: 900; color: #fff">R$ 0,00</div>
+          </div>
+        </div>
+
+        <div class="payment-tabs">
+          <div id="tab-btn-pix" class="pay-tab active" onclick="CinemaApp.switchPaymentTab('pix')">
+            <span>💠 PIX Instantâneo</span>
+          </div>
+          <div id="tab-btn-credit" class="pay-tab" onclick="CinemaApp.switchPaymentTab('credit')">
+            <span>💳 Cartão de Crédito</span>
+          </div>
+          <div id="tab-btn-debit" class="pay-tab" onclick="CinemaApp.switchPaymentTab('debit')">
+            <span>🏦 Débito Online</span>
+          </div>
+        </div>
+
+        <!-- ABA PIX -->
+        <div id="pay-section-pix">
+          <div class="pix-qr-container">
+            <h4 style="font-weight: 800; margin-bottom: 4px;">Pague via PIX com Confirmação em Tempo Real</h4>
+            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 16px;">Abra o app do seu banco, escolha a opção "Pagar com PIX" e aponte a câmera para o QR Code abaixo:</p>
+            <div class="pix-qr-svg">
+              <svg width="180" height="180" viewBox="0 0 100 100" fill="#000000" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="#ffffff" />
+                <rect x="8" y="8" width="24" height="24" fill="#044cf4" />
+                <rect x="12" y="12" width="16" height="16" fill="#ffffff" />
+                <rect x="16" y="16" width="8" height="8" fill="#044cf4" />
+                <rect x="68" y="8" width="24" height="24" fill="#044cf4" />
+                <rect x="72" y="12" width="16" height="16" fill="#ffffff" />
+                <rect x="76" y="16" width="8" height="8" fill="#044cf4" />
+                <rect x="8" y="68" width="24" height="24" fill="#044cf4" />
+                <rect x="12" y="72" width="16" height="16" fill="#ffffff" />
+                <rect x="16" y="76" width="8" height="8" fill="#044cf4" />
+                <rect x="38" y="12" width="8" height="8" fill="#000" />
+                <rect x="50" y="24" width="8" height="8" fill="#000" />
+                <rect x="38" y="44" width="24" height="24" fill="#044cf4" />
+                <rect x="72" y="44" width="12" height="12" fill="#000" />
+                <rect x="44" y="74" width="10" height="10" fill="#000" />
+                <rect x="68" y="74" width="16" height="8" fill="#000" />
+              </svg>
+            </div>
+            <div class="pix-code-box">
+              <input type="text" id="pix-code-str" class="pix-code-input" readonly />
+              <button class="btn btn-secondary btn-sm" onclick="CinemaApp.copyPixCode()">Copiar Código</button>
+            </div>
+          </div>
+          <button class="btn btn-success btn-lg" style="width: 100%" onclick="CinemaApp.processPayment('PIX')">
+            ✓ Simular Confirmação Imediata do PIX
+          </button>
+        </div>
+
+        <!-- ABA CARTÃO DE CRÉDITO -->
+        <div id="pay-section-credit" style="display: none">
+          <form onsubmit="event.preventDefault(); CinemaApp.processPayment('Cartão de Crédito')">
+            <div class="form-group">
+              <label class="form-label">Número do Cartão</label>
+              <input type="text" class="form-control" placeholder="0000 0000 0000 0000" value="4532 8901 2345 6789" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nome Impresso no Cartão</label>
+              <input type="text" class="form-control" placeholder="Como no cartão" value="CAIQUE ALENCAR" required />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+              <div class="form-group">
+                <label class="form-label">Validade (MM/AA)</label>
+                <input type="text" class="form-control" placeholder="12/28" value="10/28" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">CVV (Código de Segurança)</label>
+                <input type="password" class="form-control" placeholder="123" value="456" maxlength="4" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Parcelamento</label>
+              <select class="form-control">
+                <option value="1">1x sem juros</option>
+                <option value="2">2x sem juros</option>
+                <option value="3">3x sem juros</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px">
+              Pagar com Cartão de Crédito
+            </button>
+          </form>
+        </div>
+
+        <!-- ABA DÉBITO ONLINE -->
+        <div id="pay-section-debit" style="display: none">
+          <p style="color: var(--gray-300); margin-bottom: 20px;">Você será redirecionado para a autenticação bancária segura de sua instituição financeira.</p>
+          <div class="form-group">
+            <label class="form-label">Selecione seu Banco</label>
+            <select class="form-control">
+              <option>Banco do Brasil</option>
+              <option>Bradesco</option>
+              <option>Itaú</option>
+              <option>Caixa Econômica</option>
+              <option>Santander</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-lg" style="width: 100%" onclick="CinemaApp.processPayment('Cartão de Débito')">
+            Prosseguir para Autenticação Bancária
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. CONFIRMAÇÃO DA COMPRA (RF019, RF020, RF022) -->
+    <section id="screen-confirmation" class="screen-container">
+      <div style="max-width: 650px; margin: 30px auto; background: var(--unifor-card-bg); border: 2px solid var(--success); border-radius: var(--radius-lg); padding: 36px; text-align: center; box-shadow: var(--shadow-lg);">
+        <div style="width: 68px; height: 68px; background: rgba(16, 185, 129, 0.2); border: 2px solid var(--success); color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 16px;">
+          ✓
+        </div>
+        <h2 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 6px">Pagamento Confirmado com Sucesso!</h2>
+        <p style="color: #6ee7b7; font-size: 0.95rem; margin-bottom: 24px">Seu ingresso digital foi emitido e já está disponível em sua carteira.</p>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--unifor-border); border-radius: var(--radius-md); padding: 20px; text-align: left; margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="color: var(--gray-400)">Número do Pedido:</span>
+            <b id="confirm-order-id" style="color: #93c5fd; font-family: monospace">UNI-PED-0000</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="color: var(--gray-400)">Filme:</span>
+            <b id="confirm-movie-title">Título</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="color: var(--gray-400)">Sessão:</span>
+            <span id="confirm-session-info">Data e hora</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="color: var(--gray-400)">Assento(s):</span>
+            <b id="confirm-seats-list" style="color: var(--unifor-blue-light)">A1</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            <span style="color: var(--gray-400)">Valor Total:</span>
+            <b id="confirm-total-amount" style="font-size: 1.2rem; color: #fff">R$ 0,00</b>
+          </div>
+        </div>
+
+        <p style="font-size: 0.82rem; color: var(--gray-400); margin-bottom: 24px">
+          Uma cópia do bilhete e confirmação foi enviada para o e-mail: <b id="confirm-user-email"></b>
+        </p>
+
+        <div style="display: flex; gap: 14px; justify-content: center">
+          <button class="btn btn-primary btn-lg" onclick="CinemaApp.navigateTo('screen-my-tickets')">
+            🎟 Acessar Meus Ingressos Digitais
+          </button>
+          <button class="btn btn-secondary btn-lg" onclick="CinemaApp.navigateTo('screen-home')">
+            Página Inicial
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. MEUS INGRESSOS COM QR CODE (RF024) -->
+    <section id="screen-my-tickets" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Minha Carteira de Ingressos</h2>
+          <p class="section-subtitle">Apresente o QR Code na portaria das salas do Cinema UNIFOR para acesso</p>
+        </div>
+      </div>
+      <div id="my-tickets-list" style="max-width: 800px; margin: 0 auto">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 15. HISTÓRICO DE COMPRAS (RF023, RF025) -->
+    <section id="screen-order-history" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Histórico de Pedidos</h2>
+          <p class="section-subtitle">Consulte comprovantes e solicite cancelamento de compras elegíveis</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Nº Pedido</th>
+              <th>Filme</th>
+              <th>Data/Horário</th>
+              <th>Assentos</th>
+              <th>Valor / Forma</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="order-history-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 16. PERFIL DO USUÁRIO & VÍNCULO ACADÊMICO (RF013, RF016) -->
+    <section id="screen-profile" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Meu Perfil UNIFOR</h2>
+          <p class="section-subtitle">Gerencie suas informações cadastrais e validação de vínculo acadêmico</p>
+        </div>
+      </div>
+      <div id="profile-content-container">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 17. CONTATO / LOCALIZAÇÃO -->
+    <section id="screen-contact" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Fale com o Cinema UNIFOR</h2>
+          <p class="section-subtitle">Universidade de Fortaleza — Fundação Edson Queiroz</p>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 24px;">
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px">Envie sua Mensagem</h3>
+          <form id="contact-form" onsubmit="CinemaApp.handleContactSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Nome Completo</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail Institucional</label>
+              <input type="email" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mensagem / Dúvida</label>
+              <textarea class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar Mensagem</button>
+          </form>
+        </div>
+
+        <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 24px;">
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px">Informações e Localização</h3>
+          <p style="margin-bottom: 12px; font-size: 0.92rem; color: var(--gray-200)">
+            <b>📍 Endereço:</b><br>
+            Av. Washington Soares, 1321 — Bairro Edson Queiroz<br>
+            Centro de Convivência, Campus UNIFOR — Fortaleza, CE<br>
+            CEP: 60811-905
+          </p>
+          <p style="margin-bottom: 12px; font-size: 0.92rem; color: var(--gray-200)">
+            <b>⏰ Horários de Funcionamento da Bilheteria:</b><br>
+            Segunda a Sexta: 13h00 às 22h00<br>
+            Sábados e Domingos: 14h00 às 22h30
+          </p>
+          <p style="margin-bottom: 12px; font-size: 0.92rem; color: var(--gray-200)">
+            <b>📞 Contatos Institucionais:</b><br>
+            Telefone: (85) 3477-3000 / 3477-3100<br>
+            E-mail: cinema@unifor.br
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18. PERGUNTAS FREQUENTES (FAQ) -->
+    <section id="screen-faq" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Perguntas Frequentes (FAQ)</h2>
+          <p class="section-subtitle">Dúvidas comuns sobre venda de ingressos, meia-entrada e regras da sala</p>
+        </div>
+      </div>
+      <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;">
+        <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-md); padding: 18px; cursor: pointer" onclick="CinemaApp.toggleFaq(1)">
+          <div style="display: flex; justify-content: space-between; font-weight: 700">
+            <span>1. Quem tem direito ao desconto de 50% de Aluno UNIFOR?</span>
+            <span>+</span>
+          </div>
+          <div id="faq-ans-1" style="display: none; margin-top: 12px; color: var(--gray-300); font-size: 0.9rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
+            Todos os alunos de Graduação, Pós-Graduação e Colégio de Aplicação da Universidade de Fortaleza regularmente matriculados, além de professores e funcionários da Fundação Edson Queiroz, têm direito a 50% de desconto institucional mediante inserção de matrícula.
+          </div>
+        </div>
+
+        <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-md); padding: 18px; cursor: pointer" onclick="CinemaApp.toggleFaq(2)">
+          <div style="display: flex; justify-content: space-between; font-weight: 700">
+            <span>2. Como funciona a reserva temporária de 10 minutos dos assentos?</span>
+            <span>+</span>
+          </div>
+          <div id="faq-ans-2" style="display: none; margin-top: 12px; color: var(--gray-300); font-size: 0.9rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
+            Conforme a RN002 e RN003, ao selecionar os assentos no mapa, eles ficam bloqueados exclusivamente para você por 10 minutos. Se o pagamento não for concluído nesse período, eles retornam automaticamente ao estado disponível.
+          </div>
+        </div>
+
+        <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-md); padding: 18px; cursor: pointer" onclick="CinemaApp.toggleFaq(3)">
+          <div style="display: flex; justify-content: space-between; font-weight: 700">
+            <span>3. Posso cancelar meu ingresso e receber estorno?</span>
+            <span>+</span>
+          </div>
+          <div id="faq-ans-3" style="display: none; margin-top: 12px; color: var(--gray-300); font-size: 0.9rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
+            Sim! O cancelamento pode ser solicitado diretamente no site na aba "Histórico de Pedidos" com até 2 horas de antecedência do início da sessão programada.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19. POLÍTICA DE PRIVACIDADE (RNF009 - LGPD) -->
+    <section id="screen-privacy" class="screen-container">
+      <div style="max-width: 800px; margin: 0 auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px;">
+        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 12px">Política de Privacidade (LGPD)</h2>
+        <p style="color: var(--gray-300); font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px">
+          A Universidade de Fortaleza (UNIFOR), mantida pela Fundação Edson Queiroz, compromete-se com a proteção e a privacidade dos dados pessoais de seus alunos, docentes, colaboradores e do público externo, em total observância à Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD).
+        </p>
+        <h4 style="font-size: 1.1rem; color: #93c5fd; margin: 16px 0 6px">1. Finalidade do Tratamento</h4>
+        <p style="color: var(--gray-300); font-size: 0.9rem; line-height: 1.6">
+          Os dados coletados (nome, CPF, e-mail e matrícula) são utilizados exclusivamente para identificar o comprador, conceder os descontos acadêmicos e emitir o ingresso digital com QR Code único.
+        </p>
+        <h4 style="font-size: 1.1rem; color: #93c5fd; margin: 16px 0 6px">2. Segurança dos Meios de Pagamento</h4>
+        <p style="color: var(--gray-300); font-size: 0.9rem; line-height: 1.6">
+          O sistema não armazena dados sensíveis de cartões de crédito/débito em servidores próprios (RNF010), transferindo a operação para gateways homologados.
+        </p>
+      </div>
+    </section>
+
+    <!-- 20. TERMOS DE USO -->
+    <section id="screen-terms" class="screen-container">
+      <div style="max-width: 800px; margin: 0 auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px;">
+        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 12px">Termos de Uso do Cinema UNIFOR</h2>
+        <p style="color: var(--gray-300); font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px">
+          Regulamento de convivência e regras de acesso às salas do Cinema da Universidade de Fortaleza:
+        </p>
+        <ul style="color: var(--gray-300); font-size: 0.9rem; line-height: 1.8; padding-left: 20px">
+          <li>Abertura das portas: 15 minutos antes do início de cada sessão.</li>
+          <li>Tolerância de entrada: até 15 minutos após o início do filme.</li>
+          <li>Ingressos de Aluno/Docente UNIFOR exigem comprovação de vínculo na entrada (carteirinha digital ou matrícula).</li>
+          <li>Cada QR Code de ingresso é de uso único e pessoal (RN004, RN005).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         ÁREA ADMINISTRATIVA (TELAS 21 A 36)
+         ========================================================================== -->
+
+    <!-- 21. LOGIN ADMINISTRATIVO (RNF007) -->
+    <section id="screen-admin-login" class="screen-container">
+      <div style="max-width: 440px; margin: 50px auto; background: var(--unifor-card-bg); border: 2px solid var(--unifor-blue); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-lg);">
+        <div style="text-align: center; margin-bottom: 24px">
+          <span class="hero-tag">Acesso Restrito</span>
+          <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 6px">Gestão Cinema UNIFOR</h2>
+          <p style="color: var(--gray-300); font-size: 0.85rem">Equipe Operacional, Gerência e Fiscais</p>
+        </div>
+        <form onsubmit="CinemaApp.handleAdminLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">E-mail Administrativo</label>
+            <input type="email" id="admin-login-email" class="form-control" value="admin@unifor.br" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Senha de Acesso</label>
+            <input type="password" id="admin-login-pass" class="form-control" value="admin" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px">Autenticar no Painel</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- PAINEL ADMINISTRATIVO COM SIDEBAR (TELAS 22 A 36) -->
+    <div id="admin-main-wrapper" style="display: none">
+      <!-- Wrapper auxiliar para visualização caso queira layout conjunto -->
+    </div>
+
+    <!-- 22. DASHBOARD DE GESTÃO (RF037) -->
+    <section id="screen-admin-dashboard" class="screen-container">
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <span class="admin-nav-section-label">Gestão Central</span>
+          <div class="admin-nav-item active" onclick="CinemaApp.navigateTo('screen-admin-dashboard')">📊 Dashboard</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-movies')">🎬 Catálogo de Filmes</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-sessions')">⏰ Sessões & Horários</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-rooms')">🏛 Salas de Cinema</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-seats')">💺 Mapa de Assentos</div>
+          <span class="admin-nav-section-label">Comercial & Vendas</span>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-prices')">💲 Tabela de Preços</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-promotions')">🏷 Cupons Promocionais</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-orders')">📦 Gestão de Pedidos</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-payments')">💳 Transações Financeiras</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-reports')">📈 Relatórios de Ocupação</div>
+          <span class="admin-nav-section-label">Operação & Sistema</span>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-validator')">🔍 Validador de Portaria</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-users')">👥 Usuários & Permissões</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-banners')">🖼 Banners da Home</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-config')">⚙ Parâmetros & TMDb</div>
+          <div class="admin-nav-item" onclick="CinemaApp.navigateTo('screen-admin-audit')">📝 Auditoria & Logs</div>
+        </aside>
+
+        <div class="admin-content-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Dashboard Operacional</h2>
+              <p class="section-subtitle">Visão consolidada do Cinema UNIFOR em tempo real</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="CinemaApp.navigateTo('screen-admin-sessions')">+ Agendar Sessão</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Receita Total de Vendas</span>
+              <div id="dash-stat-revenue" class="stat-val" style="color: #60a5fa">R$ 0,00</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Ingressos Vendidos</span>
+              <div id="dash-stat-tickets" class="stat-val">0</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Sessões Programadas</span>
+              <div id="dash-stat-sessions" class="stat-val">0</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Filmes em Cartaz</span>
+              <div id="dash-stat-movies" class="stat-val">0</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 1.15rem; font-weight: 800; margin: 24px 0 14px">Ocupação das Sessões de Hoje:</h3>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Filme</th>
+                  <th>Sala</th>
+                  <th>Horário</th>
+                  <th>Vendidos / Capacidade</th>
+                  <th>Taxa de Ocupação</th>
+                </tr>
+              </thead>
+              <tbody id="dash-sessions-tbody">
+                <!-- Renderizado via app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23. FILMES & IMPORTADOR TMDB (RF026, RF027) -->
+    <section id="screen-admin-movies" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Gerenciamento do Catálogo de Filmes</h2>
+          <p class="section-subtitle">Cadastre, edite ou sincronize lançamentos diretamente da API The Movie Database</p>
+        </div>
+        <button class="btn btn-primary" onclick="CinemaApp.openTmdbSearchModal()">
+          🌐 Pesquisar & Importar do TMDb
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Pôster</th>
+              <th>Título / TMDb ID</th>
+              <th>Gêneros</th>
+              <th>Duração</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="admin-movies-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 24. SESSÕES COM ALGORITMO ANTI-CONFLITO (RF030, RF031, RN008) -->
+    <section id="screen-admin-sessions" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Programação de Sessões</h2>
+          <p class="section-subtitle">Agendamento de horários com algoritmo inteligente anti-conflito de salas</p>
+        </div>
+        <button class="btn btn-primary" onclick="CinemaApp.openNewSessionModal()">+ Nova Sessão</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Filme</th>
+              <th>Sala</th>
+              <th>Data</th>
+              <th>Horário</th>
+              <th>Formato</th>
+              <th>Preço Base</th>
+              <th>Vendas</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="admin-sessions-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 25. GERENCIAMENTO DE SALAS (RF028) -->
+    <section id="screen-admin-rooms" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Salas do Cinema UNIFOR</h2>
+          <p class="section-subtitle">Espaços de exibição no Campus Edson Queiroz</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Nome da Sala</th>
+              <th>Tecnologia</th>
+              <th>Capacidade</th>
+              <th>Recursos / Acústica</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="admin-rooms-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 26. GERENCIAMENTO DE ASSENTOS / MAPA (RF029) -->
+    <section id="screen-admin-seats" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Editor do Mapa de Assentos</h2>
+          <p class="section-subtitle">Configure assentos comuns, acessíveis para cadeirantes (PCD) ou bloqueados para manutenção</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <select id="admin-seats-room-select" class="form-control" style="width: auto" onchange="CinemaApp.loadAdminSeatsMap()">
+            <!-- Preenchido dinamicamente -->
+          </select>
+        </div>
+      </div>
+
+      <div style="background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 30px; display: flex; flex-direction: column; align-items: center;">
+        <p style="font-size: 0.85rem; color: #93c5fd; margin-bottom: 20px;">
+          💡 Clique em qualquer assento para alternar seu tipo: <b>Normal → Acessível (PCD) → Bloqueado para Manutenção</b>
+        </p>
+        <div id="admin-seats-editor-grid" class="seats-grid">
+          <!-- Grade interativa para edição -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 27. TABELA DE PREÇOS (RF032) -->
+    <section id="screen-admin-prices" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Tabela de Preços e Tarifas</h2>
+          <p class="section-subtitle">Regras de precificação por dia da semana e benefícios institucionais</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Categoria de Ingresso</th>
+              <th>Segunda a Quinta</th>
+              <th>Sexta a Domingo / Feriados</th>
+              <th>Descrição e Diretriz Institucional</th>
+            </tr>
+          </thead>
+          <tbody id="admin-prices-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 28. PROMOÇÕES E CUPONS (RF032) -->
+    <section id="screen-admin-promotions" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Cupons e Campanhas Promocionais</h2>
+          <p class="section-subtitle">Descontos institucionais e códigos comemorativos</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Código do Cupom</th>
+              <th>Desconto</th>
+              <th>Campanha</th>
+              <th>Validade</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="admin-coupons-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 29. GESTÃO DE PEDIDOS (RF033, RF034) -->
+    <section id="screen-admin-orders" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Gestão de Pedidos e Vendas</h2>
+          <p class="section-subtitle">Listagem de transações com estorno e cancelamento administrativo</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Nº Pedido</th>
+              <th>Cliente / E-mail</th>
+              <th>Filme</th>
+              <th>Assentos</th>
+              <th>Valor Total</th>
+              <th>Pagamento</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="admin-orders-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 30. PAGAMENTOS E TRANSAÇÕES (RF019) -->
+    <section id="screen-admin-payments" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Relatório de Transações Financeiras</h2>
+          <p class="section-subtitle">Extrato das operações via PIX, Cartão de Crédito e Débito</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Identificador Gateway</th>
+              <th>Data</th>
+              <th>Meio</th>
+              <th>Valor Bruto</th>
+              <th>Status do Gateway</th>
+            </tr>
+          </thead>
+          <tbody id="admin-payments-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 31. USUÁRIOS E PERMISSÕES (RF039) -->
+    <section id="screen-admin-users" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Controle de Usuários e Permissões</h2>
+          <p class="section-subtitle">Gestão de administradores, operadores, fiscais e alunos da UNIFOR</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Nome Completo</th>
+              <th>E-mail</th>
+              <th>Papel / Perfil</th>
+              <th>Matrícula UNIFOR</th>
+              <th>Status Acadêmico</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 32. RELATÓRIOS E TAXA DE OCUPAÇÃO (RF035, RF036) -->
+    <section id="screen-admin-reports" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Relatórios de Desempenho e Ocupação</h2>
+          <p class="section-subtitle">Cálculo de taxa de ocupação: (Assentos vendidos ÷ Capacidade) × 100</p>
+        </div>
+        <button class="btn btn-secondary" onclick="window.print()">🖨 Exportar / Imprimir Relatório</button>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Filme</th>
+              <th>Sala</th>
+              <th>Data / Sessão</th>
+              <th>Lugares Ocupados</th>
+              <th>Taxa de Ocupação</th>
+              <th>Receita Estimada</th>
+            </tr>
+          </thead>
+          <tbody id="admin-reports-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 33. BANNERS E DESTAQUES (RF038) -->
+    <section id="screen-admin-banners" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Banners Promocionais da Home</h2>
+          <p class="section-subtitle">Gerencie destaques institucionais e mostras universitárias</p>
+        </div>
+      </div>
+      <div id="admin-banners-list">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 34. CONFIGURAÇÕES DO CINEMA E CHAVE TMDB -->
+    <section id="screen-admin-config" class="screen-container">
+      <div style="max-width: 650px; margin: 0 auto; background: var(--unifor-card-bg); border: 1px solid var(--unifor-border); border-radius: var(--radius-lg); padding: 32px;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 20px">Configurações Operacionais & TMDb API</h2>
+        <form onsubmit="CinemaApp.saveAdminConfig(event)">
+          <div class="form-group">
+            <label class="form-label">Tempo de Reserva Temporária dos Assentos (minutos)</label>
+            <input type="number" id="cfg-temp-lock" class="form-control" value="10" min="1" max="30" required />
+            <small style="color: var(--gray-400)">Tempo que os assentos ficam travados durante o checkout (RN002, RN003)</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Intervalo Mínimo entre Sessões na Mesma Sala (minutos)</label>
+            <input type="number" id="cfg-session-interval" class="form-control" value="20" min="10" max="60" required />
+            <small style="color: var(--gray-400)">Utilizado pelo algoritmo anti-conflito para limpeza e trailers (RF031)</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prazo Limite para Cancelamento de Ingressos (horas antes)</label>
+            <input type="number" id="cfg-cancel-hours" class="form-control" value="2" min="1" max="24" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chave de API The Movie Database (TMDb API Key v3)</label>
+            <input type="text" id="cfg-tmdb-key" class="form-control" placeholder="Chave da API TMDb" />
+            <small style="color: #93c5fd">Permite buscas ao vivo de qualquer filme e importação direta para o Cinema UNIFOR.</small>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px">Salvar Parâmetros</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 35. AUDITORIA E LOGS (RF040) -->
+    <section id="screen-admin-audit" class="screen-container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Registro de Auditoria Operacional</h2>
+          <p class="section-subtitle">Rastreabilidade completa de ações administrativas conforme boas práticas de segurança</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Data / Hora</th>
+              <th>Usuário Responsável</th>
+              <th>Operação</th>
+              <th>Detalhamento da Ação</th>
+              <th>IP de Origem</th>
+            </tr>
+          </thead>
+          <tbody id="admin-audit-tbody">
+            <!-- Renderizado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 36. VALIDADOR DE INGRESSOS DA PORTARIA (RF021, RN004, RN005) -->
+    <section id="screen-admin-validator" class="screen-container">
+      <div style="max-width: 600px; margin: 30px auto; background: var(--unifor-card-bg); border: 2px solid var(--unifor-blue); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-lg);">
+        <div style="text-align: center; margin-bottom: 24px">
+          <span class="hero-tag" style="background-color: var(--unifor-blue)">Portaria & Acesso</span>
+          <h2 style="font-size: 1.6rem; font-weight: 900; margin-top: 8px">Validador de Bilhetes Digitais</h2>
+          <p style="color: var(--gray-300); font-size: 0.85rem">Bipe o QR Code do cliente ou digite o código do ingresso</p>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 24px">
+          <input type="text" id="validator-ticket-input" class="form-control" placeholder="Ex: UNI-TKT-9081-1" style="font-family: monospace; font-size: 1.1rem; text-transform: uppercase" />
+          <button class="btn btn-primary" onclick="CinemaApp.validateTicketFromInput()">
+            🔍 Validar
+          </button>
+        </div>
+
+        <!-- Atalhos rápidos com códigos de teste para o fiscal testar com 1 clique -->
+        <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.8rem">
+          <b style="color: #93c5fd">Códigos para teste de portaria:</b>
+          <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap">
+            <span class="proto-btn" onclick="document.getElementById('validator-ticket-input').value = 'UNI-TKT-9081-1'; CinemaApp.validateTicketFromInput()">Testar Válido (UNI-TKT-9081-1)</span>
+            <span class="proto-btn" onclick="document.getElementById('validator-ticket-input').value = 'UNI-TKT-9075-1'; CinemaApp.validateTicketFromInput()">Testar Já Usado (UNI-TKT-9075-1)</span>
+          </div>
+        </div>
+
+        <!-- Box de Resultado da Validação -->
+        <div id="validator-result-box" style="display: none">
+          <!-- Alerta de Sucesso ou Erro com detalhes do assento -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       MODAL DE BUSCA NA API TMDB (RF026)
+       ========================================================================== -->
+  <div id="tmdb-import-modal" class="modal-backdrop" style="display: none">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800">Importar Filme da API The Movie Database</h3>
+        <button class="btn btn-sm btn-secondary" onclick="CinemaApp.closeTmdbSearchModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--gray-300); font-size: 0.85rem; margin-bottom: 14px">
+          Busque títulos mundiais com sinopses em português, pôsteres oficiais, notas e trailers para adicionar à programação da UNIFOR.
+        </p>
+        <div style="display: flex; gap: 8px; margin-bottom: 18px">
+          <input type="text" id="tmdb-search-input" class="form-control" placeholder="Ex: Oppenheimer, Coringa, Gladiador..." onkeydown="if(event.key==='Enter') CinemaApp.searchTmdbOnline()" />
+          <button class="btn btn-primary" onclick="CinemaApp.searchTmdbOnline()">Buscar</button>
+        </div>
+        <div id="tmdb-search-results" style="max-height: 380px; overflow-y: auto;">
+          <!-- Resultados da API TMDb -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="CinemaApp.closeTmdbSearchModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL DE NOVA SESSÃO COM ALGORITMO ANTI-CONFLITO (RF030, RF031)
+       ========================================================================== -->
+  <div id="session-new-modal" class="modal-backdrop" style="display: none">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800">Cadastrar Nova Sessão de Cinema</h3>
+        <button class="btn btn-sm btn-secondary" onclick="CinemaApp.closeNewSessionModal()">✕</button>
+      </div>
+      <form onsubmit="CinemaApp.saveNewSession(event)">
+        <div class="modal-body">
+          <!-- Alerta dinâmico de conflito -->
+          <div id="session-conflict-alert-box" class="conflict-alert" style="display: none"></div>
+
+          <div class="form-group">
+            <label class="form-label">Filme</label>
+            <select id="session-new-movie" class="form-control" onchange="CinemaApp.checkConflictDynamic()" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sala</label>
+            <select id="session-new-room" class="form-control" onchange="CinemaApp.checkConflictDynamic()" required></select>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+            <div class="form-group">
+              <label class="form-label">Data da Sessão</label>
+              <input type="date" id="session-new-date" class="form-control" onchange="CinemaApp.checkConflictDynamic()" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Horário de Início</label>
+              <input type="time" id="session-new-time" class="form-control" value="19:00" onchange="CinemaApp.checkConflictDynamic()" required />
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+            <div class="form-group">
+              <label class="form-label">Formato de Exibição</label>
+              <select id="session-new-format" class="form-control">
+                <option value="2D Digital Legendado">2D Digital Legendado</option>
+                <option value="2D Digital Dublado">2D Digital Dublado</option>
+                <option value="IMAX Laser 2D">IMAX Laser 2D</option>
+                <option value="3D Laser Legendado">3D Laser Legendado</option>
+                <option value="Mostra Especial UNIFOR">Mostra Especial UNIFOR</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preço Base Inteira (R$)</label>
+              <input type="number" step="0.50" id="session-new-price" class="form-control" value="32.00" required />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="CinemaApp.closeNewSessionModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Agendar Sessão</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       CONTAINER DE TOASTS FLUTUANTES (RNF019)
+       ========================================================================== -->
+  <div id="toast-container"></div>
+
+  <!-- ==========================================================================
+       RODAPÉ OFICIAL DA UNIFOR
+       ========================================================================== -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom: 12px">
+          <div class="brand-logo-icon">U</div>
+          <div class="brand-text">
+            <h1 style="font-size: 1.1rem">Cinema <span>UNIFOR</span></h1>
+          </div>
+        </div>
+        <p style="font-size: 0.82rem; line-height: 1.6; color: var(--gray-400)">
+          Plataforma oficial de venda e reserva de ingressos do Cinema da Universidade de Fortaleza.
+          Tecnologia, cultura e acesso para alunos, docentes e comunidade cearense.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-home')">Página Inicial</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-catalog')">Filmes em Cartaz</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-schedule')">Programação Semanal</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-upcoming')">Próximos Lançamentos</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-my-tickets')">Meus Ingressos</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Institucional</h4>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-contact')">Localização & Contato</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-faq')">Perguntas Frequentes (FAQ)</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-privacy')">Política de Privacidade (LGPD)</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-terms')">Termos de Uso</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Operação & Fiscais</h4>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-admin-validator')" style="color: #60a5fa">Validador de Ingressos (Portaria)</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-admin-dashboard')">Painel Administrativo</a></li>
+          <li><a href="javascript:void(0)" onclick="CinemaApp.navigateTo('screen-admin-config')">Configurações & TMDb</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>
+        © 2026 <b>Universidade de Fortaleza — UNIFOR</b>. Mantida pela Fundação Edson Queiroz. Todos os direitos reservados.
+      </div>
+      <div>
+        Desenvolvido pela Equipe Bibicini • Cores Oficiais: <b>#044cf4</b> e <b>Branco</b>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts da Aplicação (Arquitetura Modular) -->
+  <script src="js/tmdb-service.js"></script>
+  <script src="js/data-store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
