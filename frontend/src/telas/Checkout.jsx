@@ -3,31 +3,15 @@ import { api } from "../api.js";
 import { useToast } from "../contexts/ToastContext.jsx";
 import { TIPOS, brl, dataHora } from "../util.js";
 
-export default function Checkout({ filme, sessao, mapa, selecionados, abrir }) {
+export default function Checkout({ filme, sessao, mapa, selecionados, abrir, pedirLogin }) {
   const toast = useToast();
   const [tipo, setTipo] = useState("inteira");
-  const [codigo, setCodigo] = useState("");
-  const [cupom, setCupom] = useState(null); // { codigo, desconto }
   const [pagamento, setPagamento] = useState("PIX (simulado)");
   const [enviando, setEnviando] = useState(false);
 
   // prévia do valor (o valor cobrado é sempre calculado pelo servidor)
-  const desconto = cupom ? cupom.desconto / 100 : 0;
-  const unitario = Math.round(mapa.sessao.preco * TIPOS[tipo].fator * (1 - desconto) * 100) / 100;
+  const unitario = Math.round(mapa.sessao.preco * TIPOS[tipo].fator * 100) / 100;
   const total = unitario * selecionados.length;
-
-  async function aplicarCupom() {
-    const c = codigo.trim().toUpperCase();
-    if (!c) return setCupom(null);
-    try {
-      const r = await api("/cupons/validar/" + encodeURIComponent(c));
-      setCupom(r);
-      toast(`Cupom ${r.codigo} aplicado: ${r.desconto}% de desconto.`);
-    } catch (e) {
-      setCupom(null);
-      toast(e.message);
-    }
-  }
 
   async function confirmar(e) {
     e.preventDefault();
@@ -39,7 +23,6 @@ export default function Checkout({ filme, sessao, mapa, selecionados, abrir }) {
           id_sessao: sessao._id,
           assentos: selecionados.map((s) => s.id),
           tipo_ingresso: tipo,
-          codigo_cupom: cupom?.codigo,
         },
       });
       abrir("ingresso", { pedido, pagamento });
@@ -49,7 +32,7 @@ export default function Checkout({ filme, sessao, mapa, selecionados, abrir }) {
       // alguém comprou o mesmo lugar antes: volta ao mapa atualizado
       if (err.status === 409) abrir("assentos", { filme, sessao });
       else if (err.status === 401)
-        abrir("login", { depois: { tela: "checkout", props: { filme, sessao, mapa, selecionados } } });
+        pedirLogin({ mensagem: "Sua sessão expirou. Entre novamente para concluir a compra.", tela: "checkout", props: { filme, sessao, mapa, selecionados } });
     }
   }
 
@@ -61,14 +44,13 @@ export default function Checkout({ filme, sessao, mapa, selecionados, abrir }) {
       <div className="ticket">
         <b>{filme.titulo}</b>
         <p>
-          {dataHora(sessao.data_hora)} · Sala {mapa.sala.numero}
+          {dataHora(sessao.data_hora)} · Sala {mapa.sala.nome}
         </p>
         <p>
           Assentos: <b>{selecionados.map((s) => s.rotulo).join(", ")}</b>
         </p>
         <p>
-          {selecionados.length} × {brl(unitario)} ({TIPOS[tipo].nome}
-          {cupom ? `, cupom ${cupom.codigo} −${cupom.desconto}%` : ""})
+          {selecionados.length} × {brl(unitario)} ({TIPOS[tipo].nome})
         </p>
         <div className="ticket-code" id="totalPedido">
           {brl(total)}
@@ -84,22 +66,6 @@ export default function Checkout({ filme, sessao, mapa, selecionados, abrir }) {
               </option>
             ))}
           </select>
-        </label>
-        <label>
-          Cupom de desconto (opcional)
-          <span style={{ display: "flex", gap: 8 }}>
-            <input
-              name="cupom"
-              placeholder="Ex.: UNIFOR10"
-              autoComplete="off"
-              style={{ textTransform: "uppercase" }}
-              value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
-            />
-            <button type="button" className="btn btn-outline" id="aplicarCupom" onClick={aplicarCupom}>
-              Aplicar
-            </button>
-          </span>
         </label>
         <label>
           Forma de pagamento

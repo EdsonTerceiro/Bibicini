@@ -6,10 +6,10 @@ const { HttpError, asyncHandler, validarObjectId, pick } = require('../middlewar
 
 router.param('id', validarObjectId);
 
-const resumo = (s) => ({ _id: s._id, numero: s.numero, capacidade: s.capacidade, total_assentos: s.assentos.length });
+const resumo = (s) => ({ _id: s._id, nome: s.nome, capacidade: s.capacidade, total_assentos: s.assentos.length });
 
 router.get('/', asyncHandler(async (req, res) => {
-  const salas = await Sala.find().sort({ numero: 1 }).lean();
+  const salas = await Sala.find().sort({ nome: 1 }).lean();
   res.json(salas.map(resumo));
 }));
 
@@ -19,10 +19,10 @@ router.get('/:id', asyncHandler(async (req, res) => {
   res.json(sala);
 }));
 
-// POST /api/salas  { numero, capacidade?, fileiras: ["A","B"], assentos_por_fileira: 8 }   (admin)
+// POST /api/salas  { nome: "A", capacidade?, fileiras: ["A","B"], assentos_por_fileira: 8 }   (admin)
 // Se "fileiras" e "assentos_por_fileira" forem enviados, os assentos são gerados automaticamente.
 router.post('/', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
-  const { numero, fileiras, assentos_por_fileira: porFileira } = req.body;
+  const { nome, fileiras, assentos_por_fileira: porFileira } = req.body;
   let { capacidade } = req.body;
   const assentos = [];
 
@@ -36,13 +36,13 @@ router.post('/', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
     for (const f of fileiras) for (let i = 1; i <= n; i++) assentos.push({ fileira: f, numero: i });
     if (capacidade === undefined) capacidade = assentos.length;
   }
-  res.status(201).json(await Sala.create({ numero, capacidade, assentos }));
+  res.status(201).json(await Sala.create({ nome, capacidade, assentos }));
 }));
 
 router.put('/:id', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
   const sala = await Sala.findById(req.params.id);
   if (!sala) throw new HttpError(404, 'Sala não encontrada.');
-  Object.assign(sala, pick(req.body, ['numero', 'capacidade']));
+  Object.assign(sala, pick(req.body, ['nome', 'capacidade']));
   await sala.save();
   res.json(sala);
 }));

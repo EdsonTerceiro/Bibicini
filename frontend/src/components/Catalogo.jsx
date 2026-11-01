@@ -2,10 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
 import { IconeBusca } from "./Header.jsx";
 import FilmeCard from "./FilmeCard.jsx";
+import { Link } from "../rota.jsx";
 
-const POR_PAGINA = 12;
+// modo "destaque" (página inicial): uma linha de filmes + botão "Ver todos os filmes"
+// modo "completo" (página /filmes): todos os filmes, com "Carregar mais"
+const POR_PAGINA = { destaque: 4, completo: 12 };
 
-export default function Catalogo({ onAbrirFilme }) {
+export default function Catalogo({ onAbrirFilme, modo = "destaque" }) {
+  const completo = modo === "completo";
   const [generos, setGeneros] = useState([]);
   const [texto, setTexto] = useState(""); // o que está digitado
   const [busca, setBusca] = useState(""); // o que foi enviado ao servidor (300 ms depois de parar de digitar)
@@ -35,17 +39,19 @@ export default function Catalogo({ onAbrirFilme }) {
 
   // espera o usuário parar de digitar
   useEffect(() => {
+    const novo = texto.trim();
+    if (novo === busca) return; // nada mudou: não volta para a página 1
     const t = setTimeout(() => {
-      setBusca(texto.trim());
+      setBusca(novo);
       setPagina(1);
     }, 300);
     return () => clearTimeout(t);
-  }, [texto]);
+  }, [texto, busca]);
 
   // busca os filmes sempre que filtro ou página mudam
   useEffect(() => {
     let ativo = true; // ignora respostas antigas
-    const q = new URLSearchParams({ pagina, limite: POR_PAGINA });
+    const q = new URLSearchParams({ pagina, limite: POR_PAGINA[modo] });
     if (busca) q.set("busca", busca);
     if (genero) q.set("genero", genero);
     setCarregando(true);
@@ -64,7 +70,7 @@ export default function Catalogo({ onAbrirFilme }) {
     return () => {
       ativo = false;
     };
-  }, [busca, genero, pagina]);
+  }, [busca, genero, pagina, modo]);
 
   const { filmes, total, paginas } = dados;
   const primeiraCarga = carregando && pagina === 1;
@@ -90,14 +96,19 @@ export default function Catalogo({ onAbrirFilme }) {
   }
 
   return (
-    <section className="content-section" id="filmes">
+    <section className="content-section" id={completo ? "catalogo" : "filmes"}>
+      {completo && (
+        <nav className="breadcrumb" aria-label="Você está em">
+          <Link to="/">Início</Link> <span>/</span> Filmes
+        </nav>
+      )}
       <div className="section-heading">
         <div>
-          <span className="kicker">ESCOLHA SUA PRÓXIMA HISTÓRIA</span>
+          <span className="kicker">{completo ? "CATÁLOGO COMPLETO" : "ESCOLHA SUA PRÓXIMA HISTÓRIA"}</span>
           <h2>
-            Em cartaz <span className="heading-dot">.</span>
+            {completo ? "Todos os filmes" : "Em cartaz"} <span className="heading-dot">.</span>
           </h2>
-          <p>Filmes para sentir, pensar e compartilhar.</p>
+          <p>{completo ? "Busque por título, filtre por gênero e escolha sua sessão." : "Filmes para sentir, pensar e compartilhar."}</p>
         </div>
       </div>
       <div className="search-row" id="searchRow">
@@ -133,22 +144,38 @@ export default function Catalogo({ onAbrirFilme }) {
           </select>
         </label>
         <div className="results-count" id="resultsCount">
-          {primeiraCarga || erro ? "" : `${total} ${total === 1 ? "filme" : "filmes"}`}
+          {primeiraCarga || erro
+            ? ""
+            : !completo && total > filmes.length
+              ? `${filmes.length} de ${total} filmes`
+              : `${total} ${total === 1 ? "filme" : "filmes"}`}
         </div>
       </div>
       <div className="movie-grid" id="movieGrid" aria-live="polite">
         {conteudo}
       </div>
       <div className="center-action">
-        <button
-          className="btn btn-outline"
-          id="loadMore"
-          hidden={primeiraCarga || pagina >= paginas || !filmes.length}
-          disabled={carregando}
-          onClick={() => setPagina((p) => p + 1)}
-        >
-          {carregando ? "Carregando…" : "Carregar mais filmes"} <span>↓</span>
-        </button>
+        {completo ? (
+          <button
+            className="btn btn-outline"
+            id="loadMore"
+            hidden={primeiraCarga || pagina >= paginas || !filmes.length}
+            disabled={carregando}
+            onClick={() => setPagina((p) => p + 1)}
+          >
+            {carregando ? "Carregando…" : "Carregar mais filmes"} <span>↓</span>
+          </button>
+        ) : (
+          <Link
+            to="/filmes"
+            className="btn"
+            id="verTodos"
+            style={{ background: "var(--blue)", color: "white" }}
+            hidden={primeiraCarga || (erro && !filmes.length)}
+          >
+            Ver todos os filmes <span>→</span>
+          </Link>
+        )}
       </div>
     </section>
   );

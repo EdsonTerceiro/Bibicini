@@ -12,10 +12,25 @@ router.param('id', validarObjectId);
 
 const CAMPOS = ['data_hora', 'preco', 'id_filme', 'id_sala'];
 
+// Regra do Cinema UNIFOR: sessões a partir das 13:00 e nenhuma aos domingos (horário de Fortaleza)
+const FUSO = process.env.FUSO_CINEMA || 'America/Fortaleza';
+const HORA_ABERTURA = 13;
+function validarHorario(data) {
+  const partes = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', { timeZone: FUSO, weekday: 'short', hour: 'numeric', hourCycle: 'h23' })
+      .formatToParts(data).map((p) => [p.type, p.value])
+  );
+  if (partes.weekday === 'Sun') throw new HttpError(400, 'O cinema não tem sessões aos domingos.');
+  if (Number(partes.hour) < HORA_ABERTURA) {
+    throw new HttpError(400, `As sessões começam a partir das ${HORA_ABERTURA}:00.`);
+  }
+}
+
 async function validarReferencias(dados) {
   if (dados.data_hora !== undefined && Number.isNaN(new Date(dados.data_hora).getTime())) {
     throw new HttpError(400, 'data_hora inválida (use o formato ISO, ex.: 2026-11-05T20:00:00-03:00).');
   }
+  if (dados.data_hora !== undefined) validarHorario(new Date(dados.data_hora));
   if (dados.id_filme !== undefined
       && !(ehObjectId(dados.id_filme) && (await Filme.exists({ _id: dados.id_filme })))) {
     throw new HttpError(400, 'Filme inexistente.');
@@ -47,7 +62,7 @@ router.get('/', asyncHandler(async (req, res) => {
 
   const sessoes = await Sessao.find(filtro)
     .populate('id_filme', 'titulo poster_path tmdb_id classificacao duracao_min')
-    .populate('id_sala', 'numero capacidade')
+    .populate('id_sala', 'nome capacidade')
     .sort({ data_hora: 1 }).limit(200).lean();
   res.json(sessoes);
 }));
@@ -70,7 +85,7 @@ router.get('/:id/assentos', asyncHandler(async (req, res) => {
 
   res.json({
     sessao: { _id: sessao._id, data_hora: sessao.data_hora, preco: sessao.preco, id_filme: sessao.id_filme },
-    sala: { _id: sala._id, numero: sala.numero },
+    sala: { _id: sala._id, nome: sala.nome },
     assentos,
   });
 }));
@@ -78,7 +93,7 @@ router.get('/:id/assentos', asyncHandler(async (req, res) => {
 router.get('/:id', asyncHandler(async (req, res) => {
   const sessao = await Sessao.findById(req.params.id)
     .populate('id_filme', 'titulo poster_path tmdb_id classificacao duracao_min')
-    .populate('id_sala', 'numero capacidade').lean();
+    .populate('id_sala', 'nome capacidade').lean();
   if (!sessao) throw new HttpError(404, 'Sessão não encontrada.');
   res.json(sessao);
 }));
@@ -107,3 +122,4 @@ router.delete('/:id', autenticar, exigirAdmin, asyncHandler(async (req, res) => 
 }));
 
 module.exports = router;
+module.exports.validarHorario = validarHorario;

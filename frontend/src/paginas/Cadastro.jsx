@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { api } from "../api.js";
+import AuthLayout from "../components/AuthLayout.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
+import { Link } from "../rota.jsx";
 
-export default function Cadastro({ depois, abrir, fechar }) {
+// Página de cadastro ( /cadastro )
+export default function Cadastro({ onSucesso }) {
   const { entrar } = useAuth();
   const toast = useToast();
   const [form, setForm] = useState({ nome: "", email: "", senha: "" });
@@ -17,7 +20,7 @@ export default function Cadastro({ depois, abrir, fechar }) {
       const r = await api("/auth/registrar", { method: "POST", body: form });
       entrar(r.token, r.usuario);
       toast("Conta criada com sucesso!");
-      depois ? abrir(depois.tela, depois.props) : fechar();
+      onSucesso();
     } catch (err) {
       toast(err.message);
       setEnviando(false);
@@ -25,13 +28,12 @@ export default function Cadastro({ depois, abrir, fechar }) {
   }
 
   return (
-    <>
-      <span className="kicker">CRIE SUA CONTA</span>
-      <h2 id="modalTitle">Faça parte da experiência.</h2>
+    <AuthLayout subtitulo="CRIE SUA CONTA" titulo="Cadastro">
+      <p className="auth-texto">Leva menos de um minuto.</p>
       <form className="form-stack" id="registerForm" onSubmit={enviar}>
         <label>
           Nome completo
-          <input required minLength={2} maxLength={100} autoComplete="name" placeholder="Seu nome" {...campo("nome")} />
+          <input required autoFocus minLength={2} maxLength={100} autoComplete="name" placeholder="Seu nome" {...campo("nome")} />
         </label>
         <label>
           E-mail
@@ -39,23 +41,29 @@ export default function Cadastro({ depois, abrir, fechar }) {
         </label>
         <label>
           Senha
-          <input required type="password" minLength={8} maxLength={72} autoComplete="new-password" placeholder="Mínimo de 8 caracteres" {...campo("senha")} />
+          <input
+            required
+            type="password"
+            minLength={8}
+            maxLength={72}
+            autoComplete="new-password"
+            placeholder="Mínimo de 8 caracteres"
+            {...campo("senha")}
+          />
         </label>
-        <label>
-          <span>
-            <input type="checkbox" required style={{ width: "auto" }} /> Concordo com o uso dos meus dados para a compra de
-            ingressos (LGPD).
-          </span>
+        <label className="auth-check">
+          <input type="checkbox" required /> Concordo com o uso dos meus dados para a compra de ingressos (LGPD).
         </label>
-        <button className="btn" style={{ background: "var(--blue)", color: "white" }} disabled={enviando}>
+        <button className="btn auth-botao" disabled={enviando}>
           {enviando ? "Criando…" : "Criar conta"}
         </button>
       </form>
-      <div className="detail-actions">
-        <button className="btn btn-outline" onClick={() => abrir("login", { depois })}>
-          Já tenho conta
-        </button>
-      </div>
-    </>
+      <p className="auth-troca">
+        Já tem conta?{" "}
+        <Link to="/entrar" id="irLogin">
+          Entrar
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

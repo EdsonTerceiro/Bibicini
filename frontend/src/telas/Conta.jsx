@@ -1,6 +1,7 @@
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
 import { primeiroNome } from "../util.js";
+import { navegar } from "../rota.jsx";
 
 export default function Conta({ abrir, fechar }) {
   const { usuario, sair } = useAuth();
@@ -15,6 +16,18 @@ export default function Conta({ abrir, fechar }) {
         <button className="btn" style={{ background: "var(--blue)", color: "white" }} onClick={() => abrir("meus")}>
           Meus ingressos
         </button>
+        {usuario.tipo_usuario === "admin" && (
+          <button
+            className="btn btn-outline"
+            id="contaAdmin"
+            onClick={() => {
+              fechar();
+              navegar("/admin");
+            }}
+          >
+            Painel administrativo
+          </button>
+        )}
         <button
           className="btn btn-outline"
           id="contaSair"

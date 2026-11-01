@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
 import { MAX_ASSENTOS, brl, dataHora } from "../util.js";
 
-export default function MapaAssentos({ filme, sessao, abrir }) {
+export default function MapaAssentos({ filme, sessao, abrir, pedirLogin }) {
   const { usuario } = useAuth();
   const toast = useToast();
   const [mapa, setMapa] = useState(null);
@@ -38,7 +38,7 @@ export default function MapaAssentos({ filme, sessao, abrir }) {
   function continuar() {
     const pedido = { filme, sessao, mapa, selecionados };
     if (usuario) abrir("checkout", pedido);
-    else abrir("login", { mensagem: "Entre ou crie sua conta para finalizar a compra.", depois: { tela: "checkout", props: pedido } });
+    else pedirLogin({ mensagem: "Entre ou crie sua conta para finalizar a compra.", tela: "checkout", props: pedido });
   }
 
   return (
@@ -46,7 +46,7 @@ export default function MapaAssentos({ filme, sessao, abrir }) {
       <span className="kicker">ETAPA 1 DE 3 · ESCOLHA SEU LUGAR</span>
       <h2 id="modalTitle">Selecione seus assentos</h2>
       <p>
-        {filme.titulo} · {dataHora(sessao.data_hora)} · Sala {mapa.sala.numero} · {livres} lugares livres
+        {filme.titulo} · {dataHora(sessao.data_hora)} · Sala {mapa.sala.nome} · {livres} lugares livres
       </p>
       <div className="seat-layout">
         <div>

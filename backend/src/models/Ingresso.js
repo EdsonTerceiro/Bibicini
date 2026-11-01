@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-// USUARIO COMPRA | SESSAO GERA | ASSENTO RESERVA | CUPOM APLICA (opcional)
+// USUARIO COMPRA | SESSAO GERA | ASSENTO RESERVA
 // id_assento guarda o _id do assento dentro de Sala.assentos
 // codigo_pedido agrupa os ingressos comprados juntos (um ingresso por assento)
 // ativo=false libera o assento (ingresso cancelado)
@@ -14,7 +14,6 @@ const ingressoSchema = new Schema(
     id_usuario: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true, index: true },
     id_sessao: { type: Schema.Types.ObjectId, ref: 'Sessao', required: true },
     id_assento: { type: Schema.Types.ObjectId, required: true },
-    id_cupom: { type: Schema.Types.ObjectId, ref: 'Cupom', default: null },
   },
   { timestamps: true, collection: 'ingressos' }
 );

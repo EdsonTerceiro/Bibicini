@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const router = require('express').Router();
 const Ingresso = require('../models/Ingresso');
 const Sessao = require('../models/Sessao');
-const Cupom = require('../models/Cupom');
 const { autenticar, exigirAdmin } = require('../middleware/auth');
 const {
   HttpError, asyncHandler, validarObjectId, ehObjectId, texto,
@@ -19,7 +18,7 @@ const POPULAR = {
   path: 'id_sessao',
   populate: [
     { path: 'id_filme', select: 'titulo poster_path tmdb_id' },
-    { path: 'id_sala', select: 'numero assentos' },
+    { path: 'id_sala', select: 'nome assentos' },
   ],
 };
 
@@ -37,19 +36,18 @@ function descrever(i) {
     filme: sessao?.id_filme
       ? { id: sessao.id_filme._id, titulo: sessao.id_filme.titulo, poster_path: sessao.id_filme.poster_path }
       : null,
-    sessao: sessao ? { id: sessao._id, data_hora: sessao.data_hora, sala: sala?.numero } : null,
+    sessao: sessao ? { id: sessao._id, data_hora: sessao.data_hora, sala: sala?.nome } : null,
     assento: a ? { fileira: a.fileira, numero: a.numero, rotulo: `${a.fileira}${a.numero}` } : null,
     usuario: i.id_usuario?.nome ? { id: i.id_usuario._id, nome: i.id_usuario.nome, email: i.id_usuario.email } : undefined,
   };
 }
 
 // POST /api/ingressos
-// { id_sessao, assentos: ["<id>", ...], tipo_ingresso: "inteira|meia|comunidade", codigo_cupom?: "UNIFOR10" }
+// { id_sessao, assentos: ["<id>", ...], tipo_ingresso: "inteira|meia|comunidade" }
 // O preço é SEMPRE calculado no servidor. Pagamento simulado: o ingresso já nasce como "pago".
 router.post('/', autenticar, asyncHandler(async (req, res) => {
   const { id_sessao: idSessao, assentos } = req.body;
   const tipo = texto(req.body.tipo_ingresso) || 'inteira';
-  const codigoCupom = texto(req.body.codigo_cupom)?.trim().toUpperCase();
 
   if (!ehObjectId(idSessao)) throw new HttpError(400, 'id_sessao inválido.');
   if (!Array.isArray(assentos) || assentos.length < 1 || assentos.length > MAX_ASSENTOS
@@ -65,17 +63,12 @@ router.post('/', autenticar, asyncHandler(async (req, res) => {
     throw new HttpError(400, 'Algum assento não pertence à sala desta sessão.');
   }
 
-  let cupom = null;
-  if (codigoCupom) {
-    cupom = await Cupom.findOne({ codigo: codigoCupom });
-    if (!cupom) throw new HttpError(400, 'Cupom inválido.');
-  }
-
-  const valor = arredondar(sessao.preco * TIPOS[tipo] * (cupom ? 1 - cupom.desconto / 100 : 1));
+  // preço = preço da sessão × fator do tipo (meia = 50%)
+  const valor = arredondar(sessao.preco * TIPOS[tipo]);
   const codigoPedido = `UNF-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
   const docs = assentos.map((id) => ({
     codigo_pedido: codigoPedido, status: 'pago', tipo_ingresso: tipo, valor_pago: valor,
-    id_usuario: req.usuario._id, id_sessao: sessao._id, id_assento: id, id_cupom: cupom?._id ?? null,
+    id_usuario: req.usuario._id, id_sessao: sessao._id, id_assento: id,
   }));
 
   // Transação: ou todos os assentos são reservados, ou nenhum.
@@ -106,11 +99,13 @@ router.get('/meus', autenticar, asyncHandler(async (req, res) => {
   res.json(lista.map(descrever));
 }));
 
-// GET /api/ingressos?status=&pagina=1&limite=30   (admin)
+// GET /api/ingressos?status=&codigo=UNF-XXXX&pagina=1&limite=30   (admin)
 router.get('/', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
   const filtro = {};
   const status = texto(req.query.status);
   if (status) filtro.status = status;
+  const codigo = texto(req.query.codigo)?.trim().toUpperCase();
+  if (codigo) filtro.codigo_pedido = codigo; // usado ao ler o QR Code do ingresso
   const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
   const limite = Math.min(100, Math.max(1, parseInt(req.query.limite, 10) || 30));
   const [lista, total] = await Promise.all([

@@ -32,7 +32,7 @@ export default function Programacao({ onAbrirFilme }) {
         <div>
           <b>{s.id_filme?.titulo}</b>
           <span>
-            {dia(s.data_hora)} · Sala {s.id_sala?.numero}
+            {dia(s.data_hora)} · Sala {s.id_sala?.nome}
           </span>
         </div>
         <span className="session-arrow">↗</span>

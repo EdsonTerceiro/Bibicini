@@ -100,7 +100,7 @@ export default function DetalhesFilme({ id, abrir }) {
                     <div className="session-option" key={s._id}>
                       <div>
                         <b>
-                          {hora(s.data_hora)} · Sala {s.id_sala?.numero ?? "?"}
+                          {hora(s.data_hora)} · Sala {s.id_sala?.nome ?? "?"}
                         </b>
                         <small>
                           Inteira {brl(s.preco)} · Meia {brl(s.preco / 2)}

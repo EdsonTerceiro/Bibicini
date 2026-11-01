@@ -29,3 +29,6 @@ export const posterUrl = (caminho, tamanho = "w500") => (caminho ? `https://imag
 export const classif = (c) => (!c || /^livre$/i.test(c) ? "L" : c);
 
 export const primeiroNome = (nome = "") => nome.split(" ")[0];
+
+// Link gravado no QR Code do ingresso: abre o painel já no pedido, para validar a entrada
+export const linkValidacao = (codigo) => `${window.location.origin}/admin?pedido=${encodeURIComponent(codigo)}`;

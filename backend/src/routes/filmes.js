@@ -2,7 +2,6 @@ const router = require('express').Router();
 const Filme = require('../models/Filme');
 const Genero = require('../models/Genero');
 const Sessao = require('../models/Sessao');
-const Avaliacao = require('../models/Avaliacao');
 const { autenticar, exigirAdmin } = require('../middleware/auth');
 const { tmdbGet } = require('../services/tmdb');
 const {
@@ -33,15 +32,6 @@ router.get('/', asyncHandler(async (req, res) => {
     Filme.countDocuments(filtro),
   ]);
   res.json({ itens, total, pagina, paginas: Math.ceil(total / limite) });
-}));
-
-// GET /api/filmes/tmdb/:tmdbId  -> encontra o filme do banco pelo id do TMDB
-router.get('/tmdb/:tmdbId', asyncHandler(async (req, res) => {
-  const tmdbId = parseInt(req.params.tmdbId, 10);
-  if (!Number.isInteger(tmdbId)) throw new HttpError(400, 'ID do TMDB inválido.');
-  const filme = await Filme.findOne({ tmdb_id: tmdbId }).populate('id_genero', 'nome').lean();
-  if (!filme) throw new HttpError(404, 'Filme não cadastrado no cinema.');
-  res.json(filme);
 }));
 
 // POST /api/filmes/importar-tmdb  { tmdb_id }   (admin)
@@ -102,7 +92,6 @@ router.delete('/:id', autenticar, exigirAdmin, asyncHandler(async (req, res) => 
   }
   const filme = await Filme.findByIdAndDelete(req.params.id);
   if (!filme) throw new HttpError(404, 'Filme não encontrado.');
-  await Avaliacao.deleteMany({ id_filme: req.params.id });
   res.status(204).end();
 }));
 

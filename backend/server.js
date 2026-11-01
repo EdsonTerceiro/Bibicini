@@ -29,8 +29,6 @@ function criarApp() {
   app.use('/api/salas', require('./src/routes/salas'));
   app.use('/api/sessoes', require('./src/routes/sessoes'));
   app.use('/api/ingressos', require('./src/routes/ingressos'));
-  app.use('/api/avaliacoes', require('./src/routes/avaliacoes'));
-  app.use('/api/cupons', require('./src/routes/cupons'));
   app.use('/api/tmdb', require('./src/routes/tmdb'));
   app.use('/api/admin', require('./src/routes/admin'));
   app.use('/api', naoEncontrado);
@@ -40,7 +38,12 @@ function criarApp() {
   const pastaFront = process.env.FRONTEND_DIR
     || [path.join(__dirname, '..', 'frontend', 'dist'), path.join(__dirname, '..', 'cinema-unifor-site(1)')]
       .find((p) => fs.existsSync(p));
-  if (pastaFront && fs.existsSync(pastaFront)) app.use(express.static(pastaFront));
+  if (pastaFront && fs.existsSync(pastaFront)) {
+    app.use(express.static(pastaFront));
+    // Páginas do React (/filmes, /entrar, /cadastro...) também devolvem o index.html
+    const index = path.join(pastaFront, 'index.html');
+    app.get(/^\/(?!api(\/|$)).*/, (req, res, next) => (fs.existsSync(index) ? res.sendFile(index) : next()));
+  }
 
   app.use(tratarErros);
   return app;

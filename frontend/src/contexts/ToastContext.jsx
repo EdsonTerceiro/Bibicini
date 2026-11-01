@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 
-// Mensagem curta no rodapé da tela (ex.: "Compra confirmada", "Cupom inválido")
+// Mensagem curta no rodapé da tela (ex.: "Compra confirmada", "Assento indisponível")
 const ToastContext = createContext(() => {});
 
 export function ToastProvider({ children }) {

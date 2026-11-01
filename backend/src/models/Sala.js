@@ -8,7 +8,11 @@ const assentoSchema = new Schema({
 
 const salaSchema = new Schema(
   {
-    numero: { type: Number, required: true, unique: true, min: 1, validate: Number.isInteger },
+    // identificação da sala por letra: A, B, C, D, E...
+    nome: {
+      type: String, required: true, unique: true, uppercase: true, trim: true,
+      match: [/^[A-Z]$/, 'O nome da sala deve ser uma letra (A a Z).'],
+    },
     capacidade: { type: Number, required: true, min: 1, validate: Number.isInteger },
     assentos: {
       type: [assentoSchema],

@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "../api.js";
 import { Carregando } from "../components/Modal.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
-import { STATUS, TIPOS, brl, dataHora } from "../util.js";
+import QrCode from "../components/QrCode.jsx";
+import { STATUS, TIPOS, brl, dataHora, linkValidacao } from "../util.js";
 
 export default function MeusIngressos() {
   const toast = useToast();
@@ -50,6 +51,7 @@ export default function MeusIngressos() {
       {Object.entries(pedidos).map(([codigo, ings]) => {
         const p = ings[0];
         const futuro = p.sessao && new Date(p.sessao.data_hora) > new Date();
+        const valendo = ings.filter((i) => i.status === "pago").length; // ainda não usados na entrada
         return (
           <div className="ticket" key={codigo}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
@@ -57,6 +59,16 @@ export default function MeusIngressos() {
               <span className="pill">{codigo}</span>
             </div>
             <p>{p.sessao && `${dataHora(p.sessao.data_hora)} · Sala ${p.sessao.sala}`}</p>
+            {valendo > 0 && (
+              <div className="qr-linha">
+                <QrCode texto={linkValidacao(codigo)} tamanho={112} rotulo={`QR Code do pedido ${codigo}`} />
+                <small>
+                  Apresente este QR Code na entrada.
+                  <br />
+                  Vale para {valendo === 1 ? "1 pessoa" : `${valendo} pessoas`}.
+                </small>
+              </div>
+            )}
             <table className="admin-table">
               <tbody>
                 {ings.map((i) => (
