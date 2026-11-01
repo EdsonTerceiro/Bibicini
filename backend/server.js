@@ -35,10 +35,12 @@ function criarApp() {
   app.use('/api/admin', require('./src/routes/admin'));
   app.use('/api', naoEncontrado);
 
-  // Serve o frontend (mesma origem, sem problemas de CORS)
+  // Serve o frontend React já compilado (cd frontend && npm run build gera frontend/dist).
+  // Mesma origem da API, então não há problemas de CORS.
   const pastaFront = process.env.FRONTEND_DIR
-    || path.join(__dirname, '..', 'cinema-unifor-site(1)');
-  if (fs.existsSync(pastaFront)) app.use(express.static(pastaFront));
+    || [path.join(__dirname, '..', 'frontend', 'dist'), path.join(__dirname, '..', 'cinema-unifor-site(1)')]
+      .find((p) => fs.existsSync(p));
+  if (pastaFront && fs.existsSync(pastaFront)) app.use(express.static(pastaFront));
 
   app.use(tratarErros);
   return app;

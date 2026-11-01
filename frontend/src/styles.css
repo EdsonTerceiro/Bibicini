@@ -1811,3 +1811,48 @@
          transition: none !important
      }
  }
+/* Integração com a API */
+a.session-preview {
+    color: inherit;
+    text-decoration: none
+}
+
+#programPreview .demo-note {
+    margin-top: 14px
+}
+
+.ticket+.ticket {
+    margin-top: 12px
+}
+
+.status-demo.status-cancelado {
+    background: #fdecec;
+    color: #b42318
+}
+
+.status-demo.status-utilizado {
+    background: #eef2f7;
+    color: #566176
+}
+
+.status-demo.status-reservado {
+    background: #fff6e0;
+    color: #9a6700
+}
+
+[hidden] {
+    display: none !important
+}
+
+.dia-sessoes {
+    font-size: 12px;
+    margin: 16px 0 0;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em
+}
+
+.btn-pequeno {
+    padding: 6px 10px;
+    font-size: 10px
+}

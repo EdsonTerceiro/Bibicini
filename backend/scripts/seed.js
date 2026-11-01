@@ -5,6 +5,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const conectar = require('../src/config/db');
+const { tmdbGet } = require('../src/services/tmdb');
 const { Genero, Sala, Usuario, Cupom, Filme, Sessao } = {
   Genero: require('../src/models/Genero'),
   Sala: require('../src/models/Sala'),
@@ -15,10 +16,10 @@ const { Genero, Sala, Usuario, Cupom, Filme, Sessao } = {
 };
 
 const FILMES = [
-  { titulo: 'Duna: Parte Dois', duracao_min: 166, classificacao: '14', genero: 'Ficção científica' },
-  { titulo: 'Divertida Mente 2', duracao_min: 96, classificacao: 'Livre', genero: 'Animação' },
-  { titulo: 'Oppenheimer', duracao_min: 180, classificacao: '16', genero: 'Drama' },
-  { titulo: 'Interestelar', duracao_min: 169, classificacao: '10', genero: 'Ficção científica' },
+  { titulo: 'Duna: Parte Dois', duracao_min: 166, classificacao: '14', genero: 'Ficção científica', tmdb_id: 693134 },
+  { titulo: 'Divertida Mente 2', duracao_min: 96, classificacao: 'Livre', genero: 'Animação', tmdb_id: 1022789 },
+  { titulo: 'Oppenheimer', duracao_min: 180, classificacao: '16', genero: 'Drama', tmdb_id: 872585 },
+  { titulo: 'Interestelar', duracao_min: 169, classificacao: '10', genero: 'Ficção científica', tmdb_id: 157336 },
 ];
 
 async function main() {
@@ -53,6 +54,15 @@ async function main() {
   const filmes = [];
   for (const f of FILMES) {
     const { genero, ...resto } = f;
+    if (process.env.TMDB_API_KEY) {
+      try {
+        const t = await tmdbGet(`movie/${f.tmdb_id}`, { language: 'pt-BR' });
+        if (t.poster_path) resto.poster_path = t.poster_path;
+        if (t.overview) resto.sinopse = t.overview;
+      } catch (e) {
+        console.warn(`TMDB indisponível para "${f.titulo}": ${e.message}`);
+      }
+    }
     filmes.push(await Filme.findOneAndUpdate(
       { titulo: f.titulo }, { ...resto, id_genero: generos[genero]._id }, { upsert: true, returnDocument: 'after' }
     ));
