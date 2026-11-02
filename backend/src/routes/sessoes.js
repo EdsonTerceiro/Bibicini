@@ -8,6 +8,7 @@ const {
   HttpError, asyncHandler, validarObjectId, ehObjectId, pick, texto,
 } = require('../middleware/errors');
 const { normalizarPublicos } = require('../services/acesso');
+const { INTERVALO_MIN, acharConflito, mensagemConflito } = require('../services/agenda');
 
 router.param('id', validarObjectId);
 
@@ -41,6 +42,27 @@ async function validarReferencias(dados) {
       && !(ehObjectId(dados.id_sala) && (await Sala.exists({ _id: dados.id_sala })))) {
     throw new HttpError(400, 'Sala inexistente.');
   }
+}
+
+// RF031: a sala fica ocupada do início até o fim do filme + intervalo; recusa sessões que se cruzam
+async function verificarConflito({ id_sala: idSala, id_filme: idFilme, data_hora: dataHora }, ignorarId) {
+  const filme = await Filme.findById(idFilme).select('duracao_min').lean();
+  const nova = { inicio: new Date(dataHora), duracao: filme?.duracao_min ?? 0 };
+  // só precisa olhar sessões que começam até 6 h antes (nenhum filme dura mais que isso) e antes do fim da nova
+  const filtro = {
+    id_sala: idSala,
+    data_hora: {
+      $gte: new Date(nova.inicio.getTime() - 6 * 60 * 60 * 1000),
+      $lt: new Date(nova.inicio.getTime() + (nova.duracao + INTERVALO_MIN) * 60 * 1000),
+    },
+  };
+  if (ignorarId) filtro._id = { $ne: ignorarId };
+  const outras = await Sessao.find(filtro).populate('id_filme', 'titulo duracao_min').lean();
+  const conflito = acharConflito(
+    nova,
+    outras.map((s) => ({ inicio: s.data_hora, duracao: s.id_filme?.duracao_min ?? 0, titulo: s.id_filme?.titulo ?? 'outra sessão' }))
+  );
+  if (conflito) throw new HttpError(409, mensagemConflito(nova, conflito));
 }
 
 // GET /api/sessoes?id_filme=&data=2026-11-05&todas=1
@@ -104,12 +126,19 @@ router.post('/', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
   const dados = pick(req.body, CAMPOS);
   if (dados.publicos === undefined) dados.publicos = null; // obrigatório ao criar
   await validarReferencias(dados);
+  await verificarConflito(dados);
   res.status(201).json(await Sessao.create(dados));
 }));
 
 router.put('/:id', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
   const dados = pick(req.body, CAMPOS);
   await validarReferencias(dados);
+  const atual = await Sessao.findById(req.params.id).lean();
+  if (!atual) throw new HttpError(404, 'Sessão não encontrada.');
+  // mudou sala, filme ou horário? confere de novo se não bate com outra sessão
+  if (['id_sala', 'id_filme', 'data_hora'].some((c) => dados[c] !== undefined)) {
+    await verificarConflito({ ...atual, ...dados }, atual._id);
+  }
   const sessao = await Sessao.findByIdAndUpdate(req.params.id, dados, { returnDocument: 'after', runValidators: true });
   if (!sessao) throw new HttpError(404, 'Sessão não encontrada.');
   res.json(sessao);

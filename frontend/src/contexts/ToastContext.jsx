@@ -12,7 +12,8 @@ export function ToastProvider({ children }) {
     setMensagem(texto);
     setVisivel(true);
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => setVisivel(false), 3500);
+    // mensagens longas (ex.: conflito de horário) ficam mais tempo na tela
+    timer.current = setTimeout(() => setVisivel(false), Math.max(3500, String(texto).length * 60));
   }, []);
 
   return (

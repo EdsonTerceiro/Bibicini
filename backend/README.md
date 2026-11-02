@@ -33,11 +33,36 @@ em *Database Access* use um usuário com leitura e escrita.
 Se a senha tiver caracteres especiais (`@`, `#`, `/`), codifique-a em formato URL.
 
 Admin criado pelo seed: `ADMIN_EMAIL` / `ADMIN_SENHA` do `.env` (padrão `admin@unifor.br` / `Admin@12345`).
-**Troque a senha antes de publicar.**
+**Troque a senha antes de publicar** (veja abaixo). O seed só usa `ADMIN_SENHA` ao *criar* o admin; para trocar a
+senha de um admin que já existe (ou tornar uma conta admin), use:
+
+```bash
+npm run admin -- admin@unifor.br "Uma-Senha-Bem-Forte-2026"
+```
 O painel administrativo do site fica em `/admin` (só para contas `admin`).
 
 > **Atualizando de uma versão antiga** (salas 1, 2, 3 ou cupons): rode uma vez `npm run seed -- --limpar`.
 > Isso apaga o banco inteiro (inclusive contas e ingressos de teste) e cria tudo de novo.
+
+## Antes de publicar (segurança)
+
+Configure estas variáveis no serviço de hospedagem (ex.: Render → *Environment*), **nunca** no GitHub:
+
+| Variável | O que colocar |
+|---|---|
+| `MONGODB_URI` | a mesma do `.env` (usuário do Atlas com senha forte) |
+| `JWT_SECRET` | um segredo **novo e longo**: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
+| `TMDB_API_KEY` | a chave do TMDB |
+| `CORS_ORIGIN` | o endereço publicado, ex.: `https://cinema-unifor.onrender.com` |
+| `ADMIN_EMAIL` / `ADMIN_SENHA` | usados só se o admin ainda não existir |
+
+Depois de publicar, troque a senha do admin com `npm run admin -- <email> <senha-forte>` (rodando no seu computador,
+com o `.env` apontando para o mesmo banco). O servidor avisa no terminal se o `JWT_SECRET` for fraco.
+Trocar o `JWT_SECRET` desconecta todo mundo (é preciso entrar de novo) — isso é esperado.
+
+Já incluído no código: senhas com hash (bcrypt), login por token com validade de 7 dias, limite de 30 tentativas
+de login a cada 15 min por IP (funciona atrás do proxy da hospedagem com `trust proxy`), cabeçalhos de segurança
+(helmet), preço calculado só no servidor e rotas de admin protegidas. HTTPS vem do serviço de hospedagem.
 
 ## Rotas
 
@@ -79,6 +104,8 @@ Autenticação: header `Authorization: Bearer <token>`. 🔒 = exige login · �
 - **Sem venda dupla de assento**: índice único (sessão + assento) entre ingressos ativos, e a compra roda em
   **transação** (todos os assentos ou nenhum). Cancelar um ingresso libera o assento.
 - **Horário das sessões**: de segunda a sábado, a partir das 13:00 (fuso de Fortaleza). O backend recusa outras datas.
+- **Conflito de sessões (RF031)**: a sala fica ocupada do início da sessão até o fim do filme + 15 min de intervalo
+  (variável opcional `INTERVALO_SESSOES_MIN`). O backend recusa sessões que se cruzam na mesma sala.
 - **Salas**: identificadas por letra (A–E); assentos em fileiras A–E.
 - **Pagamento simulado**: o ingresso já nasce como `pago`. Para pagamento real, integre um gateway.
 - Cadastro público sempre cria `cliente`; só o seed/banco cria `admin`.
@@ -90,11 +117,11 @@ Autenticação: header `Authorization: Bearer <token>`. 🔒 = exige login · �
 ```
 backend/
 ├── server.js
-├── scripts/seed.js
+├── scripts/        (seed.js, admin.js)
 └── src/
     ├── config/db.js
     ├── middleware/   (auth.js, errors.js)
     ├── models/       (6 coleções)
     ├── routes/       (uma por recurso)
-    └── services/       (tmdb.js, acesso.js)
+    └── services/       (tmdb.js, acesso.js, agenda.js)
 ```

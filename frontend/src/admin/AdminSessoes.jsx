@@ -75,14 +75,17 @@ function SessaoForm({ inicial, filmes, salas, onSalvo, onCancelar }) {
       toast(editando ? "Sessão atualizada." : "Sessão criada.");
       onSalvo();
     } catch (err) {
-      toast(err.status === 409 ? "Já existe uma sessão nessa sala neste horário." : err.message);
+      toast(err.message); // ex.: conflito de horário com outra sessão da sala
       setEnviando(false);
     }
   }
 
   return (
     <form className="form-stack admin-form" id="sessaoForm" onSubmit={salvar}>
-      <p className="admin-dica admin-largo">Sessões de segunda a sábado, a partir das 13:00.</p>
+      <p className="admin-dica admin-largo">
+        Sessões de segunda a sábado, a partir das 13:00. A sala fica ocupada durante o filme + 15 min de intervalo, então
+        duas sessões não podem se cruzar na mesma sala.
+      </p>
       <label className="admin-largo">
         Filme
         <select required {...campo("id_filme")}>

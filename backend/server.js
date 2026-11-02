@@ -10,6 +10,9 @@ const { naoEncontrado, tratarErros } = require('./src/middleware/errors');
 
 function criarApp() {
   const app = express();
+  // Na hospedagem (Render etc.) o site fica atrás de um proxy: sem isto, todos os usuários pareceriam ter o
+  // mesmo IP e o limite de tentativas de login bloquearia todo mundo junto.
+  app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
 
   // CSP desligada para não bloquear as fontes do Google e as imagens do TMDB usadas pelo frontend
   app.use(helmet({ contentSecurityPolicy: false }));
@@ -52,6 +55,10 @@ function criarApp() {
 async function iniciar() {
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
     throw new Error('Defina JWT_SECRET (mínimo 16 caracteres) no arquivo .env.');
+  }
+  if (process.env.JWT_SECRET.length < 32 || /troque|segredo|secret|123/i.test(process.env.JWT_SECRET)) {
+    console.warn('⚠️  JWT_SECRET fraco. Antes de publicar, gere um com:'
+      + ' node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"');
   }
   await conectar();
   const porta = process.env.PORT || 3000;
