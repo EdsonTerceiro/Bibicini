@@ -3,12 +3,15 @@ import { api } from "../api.js";
 import { Carregando } from "../components/Modal.jsx";
 import { Poster } from "../components/FilmeCard.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
-import { brl, classif, dia, hora } from "../util.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { PUBLICOS, classif, dia, hora, publicoDe, textoRegra } from "../util.js";
 
 const btnAzul = { background: "var(--blue)", color: "white" };
 
 export default function DetalhesFilme({ id, abrir }) {
   const toast = useToast();
+  const { usuario } = useAuth();
+  const meuPublico = publicoDe(usuario);
   const [filme, setFilme] = useState(null);
   const [sessoes, setSessoes] = useState(null);
   const [erro, setErro] = useState("");
@@ -96,21 +99,35 @@ export default function DetalhesFilme({ id, abrir }) {
               <div key={d}>
                 <h3 className="dia-sessoes">{d}</h3>
                 <div className="session-list">
-                  {lista.map((s) => (
-                    <div className="session-option" key={s._id}>
-                      <div>
-                        <b>
-                          {hora(s.data_hora)} · Sala {s.id_sala?.nome ?? "?"}
-                        </b>
-                        <small>
-                          Inteira {brl(s.preco)} · Meia {brl(s.preco / 2)}
-                        </small>
+                  {lista.map((s) => {
+                    const minha = meuPublico && s.publicos?.[meuPublico];
+                    const fechada = minha?.modo === "fechado";
+                    return (
+                      <div className="session-option" key={s._id}>
+                        <div>
+                          <b>
+                            {hora(s.data_hora)} · Sala {s.id_sala?.nome ?? "?"}
+                          </b>
+                          <small className="acesso-sessao">
+                            {Object.entries(PUBLICOS).map(([p, nome]) => (
+                              <span key={p} className={`acesso acesso-${s.publicos?.[p]?.modo}${p === meuPublico ? " acesso-meu" : ""}`}>
+                                {nome}: {textoRegra(s.publicos?.[p])}
+                              </span>
+                            ))}
+                          </small>
+                        </div>
+                        {fechada ? (
+                          <span className="pill sessao-exclusiva">
+                            Exclusiva: {PUBLICOS[meuPublico === "comunidade" ? "externo" : "comunidade"]}
+                          </span>
+                        ) : (
+                          <button className="btn" style={btnAzul} data-sessao={s._id} onClick={() => abrir("assentos", { filme, sessao: s })}>
+                            {minha ? (minha.modo === "gratuito" ? "Reservar grátis" : `Comprar · ${textoRegra(minha)}`) : "Selecionar"}
+                          </button>
+                        )}
                       </div>
-                      <button className="btn" style={btnAzul} data-sessao={s._id} onClick={() => abrir("assentos", { filme, sessao: s })}>
-                        Selecionar
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}

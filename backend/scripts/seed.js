@@ -11,6 +11,7 @@ const Sala = require('../src/models/Sala');
 const Usuario = require('../src/models/Usuario');
 const Filme = require('../src/models/Filme');
 const Sessao = require('../src/models/Sessao');
+const Ingresso = require('../src/models/Ingresso');
 
 const FILMES = [
   { titulo: 'Duna: Parte Dois', duracao_min: 166, classificacao: '14', genero: 'Ficção científica', tmdb_id: 693134 },
@@ -33,6 +34,17 @@ const POR_FILEIRA = 8;
 // Sessões a partir das 13:00, com 3h30 entre elas (nenhum filme passa de 3h)
 const HORARIOS = ['13:00', '16:30', '20:00'];
 const DIAS = 6; // gera sessões para hoje e os próximos dias (pulando domingos)
+
+// Exemplos de regras de acesso (o admin escolhe isso para cada sessão no painel)
+const GRATIS = { modo: 'gratuito', preco: 0 };
+const FECHADO = { modo: 'fechado', preco: 0 };
+const pago = (preco) => ({ modo: 'pago', preco });
+const REGRAS = [
+  { comunidade: GRATIS, externo: pago(16) }, // o mais comum: comunidade não paga, externo paga
+  { comunidade: GRATIS, externo: FECHADO }, // sessão exclusiva para a comunidade
+  { comunidade: GRATIS, externo: GRATIS }, // aberta e gratuita para todos
+  { comunidade: pago(10), externo: pago(20) }, // ocasião especial: todos pagam
+];
 
 // Datas sempre no horário de Fortaleza (UTC-3), mesmo se o servidor estiver em outro fuso
 const diaFortaleza = (data) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza' }).format(data);
@@ -57,6 +69,24 @@ async function main() {
     console.error('O banco tem salas no formato antigo (Sala 1, 2, 3). Rode:  npm run seed -- --limpar');
     process.exit(1);
   }
+
+  // Converte dados da versão anterior (sessão com "preco" único e ingresso tipo "comunidade"), sem apagar nada
+  const antigas = await Sessao.collection.updateMany({ publicos: { $exists: false } }, [
+    {
+      $set: {
+        publicos: {
+          comunidade: { modo: 'gratuito', preco: 0 },
+          externo: {
+            $cond: [{ $gt: ['$preco', 0] }, { modo: 'pago', preco: '$preco' }, { modo: 'gratuito', preco: 0 }],
+          },
+        },
+      },
+    },
+    { $unset: 'preco' },
+  ]);
+  await Ingresso.collection.updateMany({ tipo_ingresso: 'comunidade' }, { $set: { tipo_ingresso: 'inteira' } });
+  await Ingresso.collection.updateMany({ publico: { $exists: false } }, { $set: { publico: 'externo' } });
+  if (antigas.modifiedCount) console.log(`${antigas.modifiedCount} sessão(ões) antiga(s) convertida(s) para o novo formato.`);
 
   // Gêneros
   const generos = {};
@@ -106,7 +136,7 @@ async function main() {
       operacoes.push({
         updateOne: {
           filter: { id_sala: sala._id, data_hora: data },
-          update: { $setOnInsert: { id_filme: filme._id, preco: 16 } },
+          update: { $setOnInsert: { id_filme: filme._id, publicos: REGRAS[i % REGRAS.length] } },
           upsert: true,
         },
       });

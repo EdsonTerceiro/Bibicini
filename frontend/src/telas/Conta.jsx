@@ -1,6 +1,6 @@
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
-import { primeiroNome } from "../util.js";
+import { PUBLICOS, primeiroNome, publicoDe } from "../util.js";
 import { navegar } from "../rota.jsx";
 
 export default function Conta({ abrir, fechar }) {
@@ -12,6 +12,11 @@ export default function Conta({ abrir, fechar }) {
       <span className="kicker">MINHA CONTA</span>
       <h2 id="modalTitle">Olá, {primeiroNome(usuario.nome)}!</h2>
       <p>{usuario.email}</p>
+      <p>
+        <span className={`pill perfil-${publicoDe(usuario)}`} id="perfilPublico">
+          {PUBLICOS[publicoDe(usuario)]}
+        </span>
+      </p>
       <div className="detail-actions">
         <button className="btn" style={{ background: "var(--blue)", color: "white" }} onClick={() => abrir("meus")}>
           Meus ingressos

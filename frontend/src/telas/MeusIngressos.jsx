@@ -3,7 +3,7 @@ import { api } from "../api.js";
 import { Carregando } from "../components/Modal.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
 import QrCode from "../components/QrCode.jsx";
-import { STATUS, TIPOS, brl, dataHora, linkValidacao } from "../util.js";
+import { STATUS, TIPOS, dataHora, linkValidacao, valorOuGratis } from "../util.js";
 
 export default function MeusIngressos() {
   const toast = useToast();
@@ -77,7 +77,7 @@ export default function MeusIngressos() {
                       Assento <b>{i.assento?.rotulo || "?"}</b>
                     </td>
                     <td>{TIPOS[i.tipo_ingresso]?.nome.split(" (")[0] || i.tipo_ingresso}</td>
-                    <td>{brl(i.valor_pago)}</td>
+                    <td>{valorOuGratis(i.valor_pago)}</td>
                     <td>
                       <span className={`status-demo status-${i.status}`}>{STATUS[i.status] || i.status}</span>
                     </td>

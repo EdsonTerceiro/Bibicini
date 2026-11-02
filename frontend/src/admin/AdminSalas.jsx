@@ -110,13 +110,15 @@ export default function AdminSalas() {
                   <td>Sala {s.nome}</td>
                   <td>{s.capacidade}</td>
                   <td>{s.total_assentos}</td>
-                  <td className="admin-acoes">
+                  <td>
+                    <div className="admin-acoes">
                     <BotaoPequeno data-renomear-sala={s._id} onClick={() => renomear(s)}>
                       Renomear
                     </BotaoPequeno>
                     <BotaoPequeno perigo data-excluir-sala={s._id} onClick={() => excluir(s)}>
                       Excluir
                     </BotaoPequeno>
+                    </div>
                   </td>
                 </tr>
               ))}

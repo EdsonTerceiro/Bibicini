@@ -29,7 +29,10 @@ export default function Cadastro({ onSucesso }) {
 
   return (
     <AuthLayout subtitulo="CRIE SUA CONTA" titulo="Cadastro">
-      <p className="auth-texto">Leva menos de um minuto.</p>
+      <p className="auth-texto">
+        Leva menos de um minuto. É aluno, professor ou colaborador? Use seu e-mail <b>@unifor.br</b> ou{" "}
+        <b>@edu.unifor.br</b> para ter os benefícios da Comunidade UNIFOR.
+      </p>
       <form className="form-stack" id="registerForm" onSubmit={enviar}>
         <label>
           Nome completo

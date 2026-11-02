@@ -2193,3 +2193,110 @@ a.session-preview {
     margin-top: 14px;
     font-size: 13px
 }
+
+/* Acesso por público (Comunidade UNIFOR x Público externo) */
+.acesso-sessao {
+    display: flex !important;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px !important
+}
+
+.acesso {
+    border-radius: 5px;
+    padding: 3px 7px;
+    font-size: 10px;
+    background: #eef2f7;
+    color: #566176;
+    white-space: nowrap
+}
+
+.acesso-gratuito {
+    background: #e3f8ef;
+    color: #078c60
+}
+
+.acesso-pago {
+    background: #e8efff;
+    color: var(--blue)
+}
+
+.acesso-fechado {
+    background: #f3f4f6;
+    color: #9aa3b2;
+    text-decoration: line-through
+}
+
+.acesso-meu {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+    font-weight: 700
+}
+
+.acesso-celula {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap
+}
+
+.sessao-exclusiva {
+    font-size: 10px;
+    white-space: nowrap
+}
+
+.perfil-comunidade {
+    background: #e3f8ef;
+    color: #078c60
+}
+
+.regras-publicos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    align-items: start
+}
+
+.regra-publico {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+    align-content: start
+}
+
+.regra-publico legend {
+    font-size: 12px;
+    font-weight: 800;
+    padding: 0 6px
+}
+
+.regra-opcoes {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap
+}
+
+.form-stack .regra-opcao {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #dfe5f0;
+    border-radius: 7px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-weight: 600
+}
+
+.form-stack .regra-opcao input {
+    width: auto;
+    margin: 0
+}
+
+.regra-opcao.ativa {
+    border-color: var(--blue);
+    background: #e8efff;
+    color: var(--blue)
+}

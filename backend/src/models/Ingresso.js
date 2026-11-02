@@ -8,7 +8,10 @@ const ingressoSchema = new Schema(
   {
     codigo_pedido: { type: String, required: true, index: true },
     status: { type: String, enum: ['reservado', 'pago', 'cancelado', 'utilizado'], default: 'pago' },
-    tipo_ingresso: { type: String, enum: ['inteira', 'meia', 'comunidade'], default: 'inteira' },
+    // gratuito: sessão sem cobrança para o público da pessoa; inteira/meia: sessão paga
+    tipo_ingresso: { type: String, enum: ['inteira', 'meia', 'gratuito'], default: 'inteira' },
+    // público de quem comprou (definido pelo e-mail da conta)
+    publico: { type: String, enum: ['comunidade', 'externo'], default: 'externo' },
     valor_pago: { type: Number, required: true, min: 0 },
     ativo: { type: Boolean, default: true },
     id_usuario: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true, index: true },

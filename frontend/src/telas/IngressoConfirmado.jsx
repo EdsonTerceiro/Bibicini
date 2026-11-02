@@ -1,13 +1,14 @@
 import QrCode from "../components/QrCode.jsx";
-import { TIPOS, brl, dataHora, linkValidacao } from "../util.js";
+import { PUBLICOS, TIPOS, dataHora, linkValidacao, valorOuGratis } from "../util.js";
 
 export default function IngressoConfirmado({ pedido, pagamento, abrir, fechar }) {
   const primeiro = pedido.ingressos[0];
+  const gratuito = !(pedido.total > 0);
   return (
     <>
       <div style={{ textAlign: "center", padding: "10px 0" }}>
         <div style={{ fontSize: 42, color: "#079a69" }}>✓</div>
-        <span className="kicker">ETAPA 3 DE 3 · COMPRA CONFIRMADA</span>
+        <span className="kicker">ETAPA 3 DE 3 · {gratuito ? "RESERVA CONFIRMADA" : "COMPRA CONFIRMADA"}</span>
         <h2 id="modalTitle">Seu ingresso está pronto!</h2>
         <p>Apresente o QR Code na entrada da sala.</p>
       </div>
@@ -23,9 +24,10 @@ export default function IngressoConfirmado({ pedido, pagamento, abrir, fechar })
           </p>
           <div className="ticket-code">{pedido.codigo_pedido}</div>
           <p>
-            {TIPOS[primeiro.tipo_ingresso]?.nome || primeiro.tipo_ingresso} · {pagamento}
+            {PUBLICOS[primeiro.publico] || ""} · {TIPOS[primeiro.tipo_ingresso]?.nome || primeiro.tipo_ingresso}
+            {pagamento ? ` · ${pagamento}` : ""}
           </p>
-          <b>Total: {brl(pedido.total)}</b>
+          <b>Total: {valorOuGratis(pedido.total)}</b>
         </div>
         <div className="qr-box">
           <QrCode texto={linkValidacao(pedido.codigo_pedido)} rotulo={`QR Code do pedido ${pedido.codigo_pedido}`} />

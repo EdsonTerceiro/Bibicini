@@ -3,7 +3,7 @@ import { api } from "../api.js";
 import { Carregando } from "../components/Modal.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useToast } from "../contexts/ToastContext.jsx";
-import { MAX_ASSENTOS, brl, dataHora } from "../util.js";
+import { MAX_ASSENTOS, PUBLICOS, dataHora, publicoDe, textoRegra, valorIngresso, valorOuGratis } from "../util.js";
 
 export default function MapaAssentos({ filme, sessao, abrir, pedirLogin }) {
   const { usuario } = useAuth();
@@ -28,6 +28,9 @@ export default function MapaAssentos({ filme, sessao, abrir, pedirLogin }) {
   const colunas = Math.max(1, ...mapa.assentos.map((a) => a.numero));
   const livres = mapa.assentos.filter((a) => !a.ocupado).length;
   const marcado = (id) => selecionados.some((s) => s.id === id);
+  // regra que vale para quem está logado (sem login: mostra as duas)
+  const meuPublico = publicoDe(usuario);
+  const minha = meuPublico ? mapa.sessao.publicos?.[meuPublico] : null;
 
   function alternar(a) {
     if (marcado(a._id)) setSelecionados(selecionados.filter((s) => s.id !== a._id));
@@ -76,9 +79,20 @@ export default function MapaAssentos({ filme, sessao, abrir, pedirLogin }) {
         <aside className="seat-summary">
           <h3>Seu pedido</h3>
           <p id="seatNames">{selecionados.map((s) => s.rotulo).join(", ") || "Nenhum assento selecionado"}</p>
-          <p>Inteira {brl(mapa.sessao.preco)} por lugar</p>
+          {minha ? (
+            <p>
+              {PUBLICOS[meuPublico]}: {textoRegra(minha)}
+              {minha.modo === "pago" && " por lugar (inteira)"}
+            </p>
+          ) : (
+            Object.entries(PUBLICOS).map(([p, nome]) => (
+              <p key={p}>
+                {nome}: {textoRegra(mapa.sessao.publicos?.[p])}
+              </p>
+            ))
+          )}
           <div className="total" id="seatTotal">
-            {brl(selecionados.length * mapa.sessao.preco)}
+            {minha ? valorOuGratis(selecionados.length * valorIngresso(minha)) : "Calculado ao entrar"}
           </div>
           <button
             className="btn"

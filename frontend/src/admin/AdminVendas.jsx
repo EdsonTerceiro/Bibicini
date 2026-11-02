@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { api } from "../api.js";
 import { useToast } from "../contexts/ToastContext.jsx";
-import { STATUS, TIPOS, brl, dataHora } from "../util.js";
+import { PUBLICOS, STATUS, TIPOS, brl, dataHora, valorOuGratis } from "../util.js";
 import { Bloco, BotaoPequeno, EstadoCarregamento, confirmar, useDados } from "./comum.jsx";
 
 export default function AdminVendas({ pedidoInicial }) {
@@ -124,6 +124,7 @@ export default function AdminVendas({ pedidoInicial }) {
               <th>Cliente</th>
               <th>Filme / sessão</th>
               <th>Assento</th>
+              <th>Público</th>
               <th>Tipo</th>
               <th>Valor</th>
               <th>Status</th>
@@ -147,12 +148,14 @@ export default function AdminVendas({ pedidoInicial }) {
                     <small>{i.sessao && `${dataHora(i.sessao.data_hora)} · Sala ${i.sessao.sala}`}</small>
                   </td>
                   <td>{i.assento?.rotulo}</td>
+                  <td>{PUBLICOS[i.publico]?.replace("Público ", "") || "—"}</td>
                   <td>{TIPOS[i.tipo_ingresso]?.nome.split(" (")[0] || i.tipo_ingresso}</td>
-                  <td>{brl(i.valor_pago)}</td>
+                  <td>{valorOuGratis(i.valor_pago)}</td>
                   <td>
                     <span className={`status-demo status-${i.status}`}>{STATUS[i.status] || i.status}</span>
                   </td>
-                  <td className="admin-acoes">
+                  <td>
+                    <div className="admin-acoes">
                     {i.status === "pago" && (
                       <BotaoPequeno data-validar={i.id} onClick={() => acao(i, "utilizar")}>
                         Validar entrada
@@ -163,13 +166,14 @@ export default function AdminVendas({ pedidoInicial }) {
                         Cancelar
                       </BotaoPequeno>
                     )}
+                    </div>
                   </td>
                 </tr>
               );
             })}
             {!lista.length && (
               <tr>
-                <td colSpan={8}>Nenhum ingresso encontrado.</td>
+                <td colSpan={9}>Nenhum ingresso encontrado.</td>
               </tr>
             )}
           </tbody>

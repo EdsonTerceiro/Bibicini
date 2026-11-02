@@ -8,8 +8,8 @@ export default function Resumo() {
   if (!r) return <EstadoCarregamento erro={erro} />;
   const s = r.ingressos_por_status || {};
   const itens = [
-    ["Receita (pagos + utilizados)", brl(r.receita)],
-    ["Ingressos pagos", s.pago || 0],
+    ["Receita (confirmados + utilizados)", brl(r.receita)],
+    ["Ingressos confirmados", s.pago || 0],
     ["Ingressos utilizados", s.utilizado || 0],
     ["Ingressos cancelados", s.cancelado || 0],
     ["Sessões futuras", r.sessoes_futuras],

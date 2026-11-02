@@ -7,10 +7,11 @@ const { autenticar, exigirAdmin } = require('../middleware/auth');
 const {
   HttpError, asyncHandler, validarObjectId, ehObjectId, pick, texto,
 } = require('../middleware/errors');
+const { normalizarPublicos } = require('../services/acesso');
 
 router.param('id', validarObjectId);
 
-const CAMPOS = ['data_hora', 'preco', 'id_filme', 'id_sala'];
+const CAMPOS = ['data_hora', 'publicos', 'id_filme', 'id_sala'];
 
 // Regra do Cinema UNIFOR: sessões a partir das 13:00 e nenhuma aos domingos (horário de Fortaleza)
 const FUSO = process.env.FUSO_CINEMA || 'America/Fortaleza';
@@ -31,6 +32,7 @@ async function validarReferencias(dados) {
     throw new HttpError(400, 'data_hora inválida (use o formato ISO, ex.: 2026-11-05T20:00:00-03:00).');
   }
   if (dados.data_hora !== undefined) validarHorario(new Date(dados.data_hora));
+  if (dados.publicos !== undefined) dados.publicos = normalizarPublicos(dados.publicos);
   if (dados.id_filme !== undefined
       && !(ehObjectId(dados.id_filme) && (await Filme.exists({ _id: dados.id_filme })))) {
     throw new HttpError(400, 'Filme inexistente.');
@@ -84,7 +86,7 @@ router.get('/:id/assentos', asyncHandler(async (req, res) => {
     .sort((a, b) => a.fileira.localeCompare(b.fileira) || a.numero - b.numero);
 
   res.json({
-    sessao: { _id: sessao._id, data_hora: sessao.data_hora, preco: sessao.preco, id_filme: sessao.id_filme },
+    sessao: { _id: sessao._id, data_hora: sessao.data_hora, publicos: sessao.publicos, id_filme: sessao.id_filme },
     sala: { _id: sala._id, nome: sala.nome },
     assentos,
   });
@@ -100,6 +102,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
 router.post('/', autenticar, exigirAdmin, asyncHandler(async (req, res) => {
   const dados = pick(req.body, CAMPOS);
+  if (dados.publicos === undefined) dados.publicos = null; // obrigatório ao criar
   await validarReferencias(dados);
   res.status(201).json(await Sessao.create(dados));
 }));

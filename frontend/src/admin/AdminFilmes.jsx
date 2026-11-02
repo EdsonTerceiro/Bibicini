@@ -181,7 +181,8 @@ export default function AdminFilmes() {
                   <td>{f.duracao_min} min</td>
                   <td>{classif(f.classificacao)}</td>
                   <td>{f.tmdb_id || "—"}</td>
-                  <td className="admin-acoes">
+                  <td>
+                    <div className="admin-acoes">
                     <BotaoPequeno
                       data-editar-filme={f._id}
                       onClick={() => setFormulario({ ...f, id_genero: f.id_genero?._id, tmdb_id: f.tmdb_id ?? "", sinopse: f.sinopse ?? "" })}
@@ -191,6 +192,7 @@ export default function AdminFilmes() {
                     <BotaoPequeno perigo data-excluir-filme={f._id} onClick={() => excluir(f)}>
                       Excluir
                     </BotaoPequeno>
+                    </div>
                   </td>
                 </tr>
               ))}

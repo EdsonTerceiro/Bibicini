@@ -58,8 +58,8 @@ Autenticação: header `Authorization: Bearer <token>`. 🔒 = exige login · �
 | POST/PUT/DELETE | `/api/salas[/:id]` 🛡️ | `POST {nome: "A", fileiras: ["A","B"], assentos_por_fileira: 8}` |
 | GET | `/api/sessoes?id_filme=&data=AAAA-MM-DD&todas=1` | sessões (futuras por padrão) |
 | GET | `/api/sessoes/:id/assentos` | mapa de assentos com `ocupado` |
-| POST/PUT/DELETE | `/api/sessoes[/:id]` 🛡️ | CRUD de sessões (seg. a sáb., a partir das 13:00) |
-| POST | `/api/ingressos` 🔒 | `{id_sessao, assentos:[ids], tipo_ingresso}` |
+| POST/PUT/DELETE | `/api/sessoes[/:id]` 🛡️ | CRUD de sessões (seg. a sáb., a partir das 13:00) — corpo: `{id_filme, id_sala, data_hora, publicos}` |
+| POST | `/api/ingressos` 🔒 | `{id_sessao, assentos:[ids], tipo_ingresso?}` (`inteira`/`meia`, só em sessão paga) |
 | GET | `/api/ingressos/meus` 🔒 | ingressos do usuário |
 | POST | `/api/ingressos/:id/cancelar` 🔒 | cancela e libera o assento |
 | POST | `/api/ingressos/:id/utilizar` 🔒 | check-in (admin/funcionário) |
@@ -69,7 +69,13 @@ Autenticação: header `Authorization: Bearer <token>`. 🔒 = exige login · �
 
 ## Regras importantes
 
-- **Preço calculado no servidor**: `preço da sessão × tipo (meia = 50%)`. O cliente não envia valor.
+- **Acesso por público**: cada sessão tem uma regra para a **Comunidade UNIFOR** e outra para o **Público externo**:
+  `gratuito`, `pago` (com preço) ou `fechado` (sessão exclusiva para o outro público). Exemplo de `publicos`:
+  `{"comunidade": {"modo": "gratuito"}, "externo": {"modo": "pago", "preco": 16}}`.
+- **Quem é Comunidade UNIFOR**: contas com e-mail `@unifor.br` ou de subdomínio (ex.: `@edu.unifor.br`);
+  as demais são Público externo. Decidido no servidor pelo e-mail (variável opcional `DOMINIO_COMUNIDADE`).
+- **Preço calculado no servidor** (`src/services/acesso.js`): gratuito = R$ 0; pago = preço do público × tipo
+  (inteira 100%, meia 50%). O cliente não envia valor.
 - **Sem venda dupla de assento**: índice único (sessão + assento) entre ingressos ativos, e a compra roda em
   **transação** (todos os assentos ou nenhum). Cancelar um ingresso libera o assento.
 - **Horário das sessões**: de segunda a sábado, a partir das 13:00 (fuso de Fortaleza). O backend recusa outras datas.
@@ -77,7 +83,7 @@ Autenticação: header `Authorization: Bearer <token>`. 🔒 = exige login · �
 - **Pagamento simulado**: o ingresso já nasce como `pago`. Para pagamento real, integre um gateway.
 - Cadastro público sempre cria `cliente`; só o seed/banco cria `admin`.
 - Pequenos acréscimos ao DER: `senha_hash` (usuário), `tmdb_id`/`poster_path`/`sinopse` (filme),
-  `codigo_pedido`/`tipo_ingresso`/`ativo` (ingresso).
+  `codigo_pedido`/`tipo_ingresso`/`publico`/`ativo` (ingresso) e `publicos` (sessão, no lugar de um preço único).
 
 ## Estrutura
 
@@ -90,5 +96,5 @@ backend/
     ├── middleware/   (auth.js, errors.js)
     ├── models/       (6 coleções)
     ├── routes/       (uma por recurso)
-    └── services/tmdb.js
+    └── services/       (tmdb.js, acesso.js)
 ```

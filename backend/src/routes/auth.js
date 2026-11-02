@@ -3,9 +3,13 @@ const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const { gerarToken, autenticar } = require('../middleware/auth');
 const { HttpError, asyncHandler, texto } = require('../middleware/errors');
+const { publicoDoEmail } = require('../services/acesso');
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const publico = (u) => ({ id: u._id, nome: u.nome, email: u.email, tipo_usuario: u.tipo_usuario });
+// "publico" diz se a conta é da Comunidade UNIFOR (e-mail @unifor.br) ou Público externo
+const publico = (u) => ({
+  id: u._id, nome: u.nome, email: u.email, tipo_usuario: u.tipo_usuario, publico: publicoDoEmail(u.email),
+});
 
 // POST /api/auth/registrar  { nome, email, senha }
 router.post('/registrar', asyncHandler(async (req, res) => {

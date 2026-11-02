@@ -7,11 +7,11 @@ const { autenticar, exigirAdmin } = require('../middleware/auth');
 const {
   HttpError, asyncHandler, validarObjectId, ehObjectId, texto,
 } = require('../middleware/errors');
+const { publicoDoEmail, calcularIngresso } = require('../services/acesso');
 
 router.param('id', validarObjectId);
 
 const MAX_ASSENTOS = 6;
-const TIPOS = { inteira: 1, meia: 0.5, comunidade: 1 }; // fator aplicado sobre o preço da sessão
 const arredondar = (n) => Math.round(n * 100) / 100;
 
 const POPULAR = {
@@ -31,6 +31,7 @@ function descrever(i) {
     codigo_pedido: i.codigo_pedido,
     status: i.status,
     tipo_ingresso: i.tipo_ingresso,
+    publico: i.publico,
     valor_pago: i.valor_pago,
     criado_em: i.createdAt,
     filme: sessao?.id_filme
@@ -43,18 +44,17 @@ function descrever(i) {
 }
 
 // POST /api/ingressos
-// { id_sessao, assentos: ["<id>", ...], tipo_ingresso: "inteira|meia|comunidade" }
-// O preço é SEMPRE calculado no servidor. Pagamento simulado: o ingresso já nasce como "pago".
+// { id_sessao, assentos: ["<id>", ...], tipo_ingresso?: "inteira|meia" (só em sessão paga) }
+// O público (Comunidade UNIFOR ou Externo) vem do e-mail da conta, e o valor é SEMPRE calculado no servidor
+// a partir das regras da sessão. Pagamento simulado: o ingresso já nasce confirmado (status "pago").
 router.post('/', autenticar, asyncHandler(async (req, res) => {
   const { id_sessao: idSessao, assentos } = req.body;
-  const tipo = texto(req.body.tipo_ingresso) || 'inteira';
 
   if (!ehObjectId(idSessao)) throw new HttpError(400, 'id_sessao inválido.');
   if (!Array.isArray(assentos) || assentos.length < 1 || assentos.length > MAX_ASSENTOS
       || !assentos.every(ehObjectId) || new Set(assentos).size !== assentos.length) {
     throw new HttpError(400, `Escolha de 1 a ${MAX_ASSENTOS} assentos distintos.`);
   }
-  if (!(tipo in TIPOS)) throw new HttpError(400, 'tipo_ingresso inválido.');
 
   const sessao = await Sessao.findById(idSessao).populate('id_sala');
   if (!sessao) throw new HttpError(404, 'Sessão não encontrada.');
@@ -63,11 +63,12 @@ router.post('/', autenticar, asyncHandler(async (req, res) => {
     throw new HttpError(400, 'Algum assento não pertence à sala desta sessão.');
   }
 
-  // preço = preço da sessão × fator do tipo (meia = 50%)
-  const valor = arredondar(sessao.preco * TIPOS[tipo]);
+  // gratuito, pago (inteira/meia) ou exclusivo para outro público — conforme a regra da sessão
+  const publico = publicoDoEmail(req.usuario.email);
+  const { tipo, valor } = calcularIngresso(sessao.publicos, publico, texto(req.body.tipo_ingresso));
   const codigoPedido = `UNF-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
   const docs = assentos.map((id) => ({
-    codigo_pedido: codigoPedido, status: 'pago', tipo_ingresso: tipo, valor_pago: valor,
+    codigo_pedido: codigoPedido, status: 'pago', tipo_ingresso: tipo, publico, valor_pago: valor,
     id_usuario: req.usuario._id, id_sessao: sessao._id, id_assento: id,
   }));
 
